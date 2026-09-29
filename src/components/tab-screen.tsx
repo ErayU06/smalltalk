@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { BottomTabInset, MaxContentWidth, Spacing, TopTabInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
@@ -23,7 +23,7 @@ export function TabScreen({ title, subtitle, children }: Props) {
       contentContainerStyle={[
         styles.content,
         {
-          paddingTop: insets.top + Spacing.four,
+          paddingTop: insets.top + TopTabInset + Spacing.four,
           paddingBottom: insets.bottom + BottomTabInset + Spacing.four,
         },
       ]}>

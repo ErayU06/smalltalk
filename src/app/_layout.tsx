@@ -6,6 +6,12 @@ import { AnimatedSplashOverlay } from '@/components/animated-icon';
 
 SplashScreen.preventAutoHideAsync();
 
+// Keep the tabs under deep-linked screens (e.g. a web refresh on /practice/…) so there is
+// always somewhere to go back to.
+export const unstable_settings = {
+  anchor: '(tabs)',
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (

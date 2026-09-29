@@ -1,56 +1,72 @@
-# Welcome to your Expo app 👋
+# smalltalk
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+İngilizce small talk pratiği için Expo (React Native) uygulaması. Arayüz Türkçe, pratik dili İngilizce.
 
-## Get started
+Uygulama şu an **tamamen sahte verilerle (mock data)** çalışır: API anahtarı, sunucu ya da yapay zekâ
+entegrasyonu gerekmez. Tüm içerik uygulamanın içinde tanımlı; uygulama hiçbir sunucuya istek atmaz.
 
-1. Install dependencies
+## Yerelde çalıştırma
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Gereken: Node.js 20.19.4+ (veya 22.13+ / 24.3+) ve npm.
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Tarayıcıda (en hızlı yol)
 
-### Other setup steps
+```bash
+npm run web
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Tarayıcıda http://localhost:8081 adresini aç. Mobil görünümü test etmek için tarayıcının geliştirici
+araçlarındaki cihaz modunu (Chrome'da `Ctrl/Cmd + Shift + M`) kullanabilirsin. Web'de sekmeler sayfanın
+üstünde, telefonda altta görünür.
 
-## Learn more
+### Telefonda veya simülatörde
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Telefon:** App Store / Google Play'den Expo Go'yu yükle ve terminalde çıkan QR kodunu tara. Telefon
+  ile bilgisayar aynı Wi-Fi ağında olmalı. Expo Go, projenin Expo SDK sürümünü (57) desteklemeli.
+- **iOS Simülatörü** (macOS + Xcode): terminalde `i` tuşuna bas.
+- **Android Emülatörü** (Android Studio): terminalde `a` tuşuna bas.
 
-## Join the community
+## Denenecek akış
 
-Join our community of developers creating universal apps.
+1. **Pratik** sekmesinde seviye filtresini değiştir, bir senaryo seç.
+2. Sohbette önerilen cevaplardan birine dokun ya da kendi cevabını yazıp gönder. Karşı taraf yaklaşık bir
+   saniye sonra cevap verir.
+3. Sohbet bitince **Geri bildirimi gör** → puan, ipuçları ve kullanışlı kalıplar. **Tekrar dene** aynı
+   senaryoyu baştan açar, **Bitir** ana sayfaya döner.
+4. **İlerleme** ve **Profil** sekmelerine göz at.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Sahte veriler nerede?
+
+| Dosya | İçerik |
+| --- | --- |
+| `src/data/scenarios.ts` | Senaryolar: karşı tarafın replikleri, önerilen cevaplar, ipuçları |
+| `src/data/progress.ts` | Profil, günlük seri, haftalık süre, son pratikler |
+| `src/hooks/use-practice-session.ts` | Sohbet motoru: senaryodaki sıradaki repliği oynatır; kullanıcının ne yazdığına bakmaz |
+| `src/app/feedback/[id].tsx` (`mockScore`) | Puan: cevap başına kelime sayısına göre hesaplanır, dil analizi yapmaz |
+
+Yapay zekâ entegrasyonu eklendiğinde değişmesi gereken yerler bu dosyalar; ekranlar aynı kalabilir.
+
+## Geliştirme komutları
+
+```bash
+npx expo lint      # lint
+npx tsc --noEmit   # tip kontrolü
+```
+
+`tsc`, `expo-env.d.ts` dosyasına ihtiyaç duyar. Bu dosya git'te tutulmaz ve ilk `npm start` /
+`npm run web` çalıştırmasında otomatik oluşur; tip kontrolünden önce uygulamayı bir kez başlat.
+
+## Proje yapısı
+
+- `src/app/` — Expo Router ekranları (her dosya bir rota; `_layout.tsx` dosyaları gezinmeyi tanımlar)
+- `src/components/` — ortak bileşenler (`*.web.tsx` dosyaları web'e özel sürümlerdir)
+- `src/data/` — sahte veriler
+- `src/hooks/`, `src/constants/` — hook'lar, tema ve boşluk değerleri

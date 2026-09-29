@@ -74,4 +74,6 @@ export const Spacing = {
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+/** Space taken by the floating tab bar that sits at the top on web (app-tabs.web.tsx). */
+export const TopTabInset = Platform.select({ web: 60 }) ?? 0;
 export const MaxContentWidth = 800;
