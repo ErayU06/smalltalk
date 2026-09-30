@@ -7,18 +7,20 @@ import { Scene } from '@/components/illustrations/Scene';
 import { Button } from '@/components/ui/Button';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { Card, IconButton, Pill } from '@/components/ui/Primitives';
+import { isTargetLang } from '@/data/languages';
 import { getScenario } from '@/data/scenarios';
-import { useTTS } from '@/features/speech/useTTS';
+import { useVoice } from '@/features/speech/useVoice';
 import { upperTR } from '@/theme/text';
 import { useTheme } from '@/theme/useTheme';
 
 /** Stitch "Ders Sonu – Başarı & Seri". Tüm sayılar gerçek ders sonucundan gelir. */
 export default function LessonComplete() {
-  const q = useLocalSearchParams<{ id: string; xp: string; streak: string; natural: string; total: string }>();
-  const scenario = getScenario(q.id);
+  const q = useLocalSearchParams<{ id: string; lang?: string; xp: string; streak: string; natural: string; total: string }>();
+  const lang = isTargetLang(q.lang) ? q.lang : 'en';
+  const scenario = getScenario(q.id, lang);
   const { c, type, radius, fonts, elevation } = useTheme();
   const insets = useSafeAreaInsets();
-  const tts = useTTS(scenario?.locale ?? 'en-US');
+  const tts = useVoice(scenario?.locale ?? 'en-US');
 
   const tiles: { icon: IconName; bg: string; fg: string; value: string; label: string }[] = [
     { icon: 'bolt', bg: c.secondarySoft, fg: c.onSecondarySoft, value: `+${q.xp} XP`, label: 'Bu provadan' },
@@ -68,7 +70,7 @@ export default function LessonComplete() {
                 <Text style={[type.labelLg, { color: c.text }]}>“{scenario.pattern.text}”</Text>
                 <Text style={[type.caption, { color: c.textMuted }]}>{scenario.pattern.note}</Text>
               </View>
-              <IconButton icon="speaker" label="Kalıbı dinle" tone="surface" size={36} onPress={() => tts.speak(scenario.pattern.text)} />
+              <IconButton icon="speaker" label="Kalıbı dinle" tone="surface" size={36} onPress={() => tts.speak(scenario.pattern.text, { as: 'narrator' })} />
             </View>
           </Card>
         ) : null}
@@ -88,7 +90,7 @@ export default function LessonComplete() {
 
         <View style={{ gap: 8 }}>
           <Button label="Harika, devam et" iconRight="arrowRight" onPress={() => router.dismissTo('/')} />
-          <Button label="Bir daha prova et" variant="soft" icon="refresh" onPress={() => router.replace({ pathname: '/lesson/[id]', params: { id: q.id } })} />
+          <Button label="Bir daha prova et" variant="soft" icon="refresh" onPress={() => router.replace({ pathname: '/lesson/[id]', params: { id: q.id, lang } })} />
         </View>
       </ScrollView>
     </View>

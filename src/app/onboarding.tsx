@@ -9,7 +9,9 @@ import { Icon } from '@/components/ui/Icon';
 import { NativeLanguagePicker, TargetLanguagePicker } from '@/components/onboarding/LanguagePickers';
 import { Card, IconButton, Pill, SelectCard, StepDots } from '@/components/ui/Primitives';
 import { upperTR } from '@/theme/text';
-import { NATIVE_OPTIONS, TARGET_OPTIONS, TARGETS_WITH_CONTENT, type Language } from '@/data/languages';
+import { availability } from '@/data/availability';
+import { NATIVE_OPTIONS, TARGET_OPTIONS, type Language } from '@/data/languages';
+import { contentCount } from '@/data/scenarios';
 import { getPrefs, savePrefs, type Anxiety, type Interest, type Prefs } from '@/features/progress/db';
 import { useTheme } from '@/theme/useTheme';
 import type { Setting } from '@/types/scenario';
@@ -100,7 +102,8 @@ export default function Onboarding() {
                 options={TARGET_OPTIONS}
                 value={p.targetLang as LangCode | null}
                 onChange={(code) => set({ targetLang: code })}
-                soon={TARGET_OPTIONS.filter((code) => !TARGETS_WITH_CONTENT.includes(code))}
+                soon={TARGET_OPTIONS.filter((code) => availability(code) === 'soon')}
+                preview={Object.fromEntries(TARGET_OPTIONS.filter((code) => availability(code) === 'preview').map((code) => [code, contentCount(code).total]))}
               />
             </Section>
             <Section label="Konuşurken en çok ne zorluyor?">

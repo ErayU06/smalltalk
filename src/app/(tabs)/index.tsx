@@ -6,10 +6,11 @@ import { DailyGoalCard } from '@/components/home/DailyGoalCard';
 import { ScenarioCard } from '@/components/home/ScenarioCard';
 import { Icon } from '@/components/ui/Icon';
 import { SoftNote, StatPill } from '@/components/ui/Primitives';
-import { scenarios } from '@/data/scenarios';
+import { learningLang } from '@/data/availability';
+import { getScenarios } from '@/data/scenarios';
+import { openScenario } from '@/features/lesson/open';
 import { getPrefs, getProfile, getTodayMinutes, type Anxiety, type Prefs, type Profile } from '@/features/progress/db';
 import { useTheme } from '@/theme/useTheme';
-import type { Scenario } from '@/types/scenario';
 
 const FOCUS: Record<Anxiety, string> = {
   panic: 'Sakin kalıp kısa cevap vermek',
@@ -44,7 +45,8 @@ export default function PracticeHome() {
     }, []),
   );
 
-  const open = (s: Scenario) => (s.isPremium ? router.push('/paywall') : router.push({ pathname: '/lesson/[id]', params: { id: s.id } }));
+  const scenarios = getScenarios(learningLang(prefs?.targetLang));
+  const open = openScenario;
   const free = scenarios.filter((s) => !s.isPremium);
   const [feature, ...rest] = free;
   const locked = scenarios.filter((s) => s.isPremium);

@@ -5,6 +5,7 @@
  * Telefonda Metro bu dosyayı değil db.ts'yi (SQLite) kullanır.
  */
 import { localDay, yesterday } from './day';
+import { migrateId } from './legacy';
 import type { Interest, Prefs, Profile } from './db';
 
 export type { Anxiety, Interest, Prefs, Profile } from './db';
@@ -38,7 +39,11 @@ function load(): Store {
   if (memory) return memory;
   try {
     const raw = globalThis.localStorage?.getItem(KEY);
-    memory = raw ? { ...fresh(), ...(JSON.parse(raw) as Store) } : fresh();
+    const saved = raw ? { ...fresh(), ...(JSON.parse(raw) as Store) } : fresh();
+    // db.ts'deki göç 3 ile aynı: eski senaryo kimlikleri dil bazlı anahtara
+    saved.lessons = saved.lessons.map((l) => ({ ...l, scenario_id: migrateId(l.scenario_id) }));
+    saved.review = saved.review.map((r) => ({ ...r, scenario_id: migrateId(r.scenario_id) }));
+    memory = saved;
   } catch {
     memory = fresh();
   }

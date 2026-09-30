@@ -1,0 +1,76 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+const en: ScenarioVariant = {
+  locale: 'en-US',
+  title: 'Masa iste, sipariş ver, hesabı öde',
+  description: 'Restoranda baştan sona: masa, sipariş, hesap ve kapanış sohbeti.',
+  placeLabel: 'Mahalle restoranı',
+  mood: 'Enerjik garson',
+  pattern: { text: 'Could we have the check, please?', note: 'Hesap isteme kalıbı · A2' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: 'Good evening! How many people?',
+      hint: { tr: 'Kaç kişi olduğunuzu kibarca söyle.' },
+      prompt: 'Masa iste:',
+      options: [
+        { text: 'Just two, please.', correct: true, feedback: 'Kısa, kibar ve tam restoranlarda duyulan cevap.' },
+        { text: 'We are two persons.', correct: false, near: true, feedback: 'Anlaşılır ama "persons" doğal değil; "Just two, please" ya da "A table for two".' },
+        { text: 'Two pizzas, please.', correct: false, feedback: 'Garson kişi sayısını soruyor; sipariş biraz sonra.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: 'Here are your menus. Can I get you started with something to drink?',
+      hint: { tr: 'İki su iste.', example: 'Could we get two…' },
+      acceptedAnswers: ['Could we get two waters, please?', 'Two waters, please.', "We'll have two glasses of water, please.", 'Just water for both of us, please.'],
+      keywords: [['water', 'waters']],
+      wordBank: ['Could we get', 'two waters', 'please', 'for both of us'],
+      why: 'Sipariş verirken "Could we get…" ya da "We\'ll have…" kibar duyulur.',
+      mistakes: [{ match: '^(give us|we want)', tip: '"Give us / We want" garsona sert gelebilir; "Could we get…" dene.' }],
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: 'Are you ready to order?',
+      hint: { tr: 'Makarna sipariş et.', example: "I'll have the pasta…" },
+      acceptedAnswers: ["I'll have the pasta, please.", "I'd like the pasta, please.", 'Could I get the pasta?', 'The pasta for me, please.'],
+      keywords: [['pasta']],
+      wordBank: ["I'll have", 'the pasta', 'please'],
+      why: 'Menüden seçerken "I\'ll have the…" en yaygın kalıp.',
+      mistakes: [{ match: '^i want', tip: '"I want…" yerine "I\'ll have…" ya da "I\'d like…" daha kibar.' }],
+    },
+    {
+      id: 's4',
+      kind: 'text',
+      npcLine: 'How is everything tasting?',
+      hint: { tr: 'Çok güzel olduğunu söyle, sonra hesabı iste.', example: "It's delicious! Could we have the check…" },
+      acceptedAnswers: ["It's delicious, thanks! Could we have the check, please?", 'Everything is great. Could we get the check?', "Really good, thank you. Can we have the check, please?"],
+      keywords: [['check', 'bill'], ['delicious', 'great', 'good', 'lovely', 'amazing']],
+      wordBank: ["It's delicious", 'Could we have', 'the check', 'please'],
+      why: 'ABD\'de "the check", İngiltere\'de "the bill" denir; ikisi de anlaşılır.',
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: "Here you go. Thanks for coming in, have a great night!",
+      hint: { tr: 'Teşekkür et, yemeği övüp iyi akşamlar dile.', example: 'Thank you, it was…' },
+      acceptedAnswers: ['Thank you, it was lovely. You too!', 'Thanks, everything was great. Have a good night!', 'Thanks so much, you too!', 'It was delicious, thank you. Good night!'],
+      keywords: [['thank', 'thanks'], ['you too', 'night', 'lovely', 'great', 'delicious']],
+      wordBank: ['Thank you', 'it was lovely', 'you too'],
+      why: 'Çıkarken yemeği kısaca övmek garsonu mutlu eder.',
+    },
+  ],
+  vocab: [
+    { text: 'A table for two', tr: 'İki kişilik masa' },
+    { text: "I'll have the…", tr: '…yı alayım' },
+    { text: 'the check / the bill', tr: 'hesap' },
+    { text: "It's delicious", tr: 'Çok lezzetli' },
+    { text: 'tip', tr: 'bahşiş' },
+  ],
+  curveballs: ['Just so you know, this dish is a bit spicy. Is that okay?'],
+};
+
+export default en;

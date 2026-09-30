@@ -47,10 +47,12 @@ export function NativeLanguagePicker({ options, value, onChange }: { options: Co
  * Hedef dil: 2 sütunlu kart ızgarası, 10px boşluk, 16px köşe.
  * Kart: solda 36×36 kod kutusu, sağda ad + küçük bayrak ve dilin kendi adı.
  * Seçili: 2px mercan çerçeve, kod kutusu koyu lacivert/beyaz yazı, ad ekstra kalın.
- * `soon` listesindekiler görünür ama seçilemez ("Yakında").
+ * `soon` listesindekiler görünür ama seçilemez ("Yakında"); `preview` olanlar seçilir, hazır senaryo sayısı yazar.
  * ────────────────────────────────────────────────────────────── */
-export function TargetLanguagePicker({ options, value, onChange, soon = [] }: {
+export function TargetLanguagePicker({ options, value, onChange, soon = [], preview = {} }: {
   options: Code[]; value: Code | null; onChange: (c: Code) => void; soon?: Code[];
+  /** Tam içerik gelmeden seçilebilen diller: dil → hazır senaryo sayısı */
+  preview?: Partial<Record<Code, number>>;
 }) {
   const { c, fonts, radius } = useTheme();
   return (
@@ -59,12 +61,13 @@ export function TargetLanguagePicker({ options, value, onChange, soon = [] }: {
         const lang = LANGUAGES[code];
         const selected = value === code;
         const disabled = soon.includes(code);
+        const previewCount = preview[code];
         return (
           <Pressable
             key={code}
             accessibilityRole="radio"
             accessibilityState={{ checked: selected, disabled }}
-            accessibilityLabel={`${lang.name}, ${lang.endonym}${disabled ? ', yakında' : ''}`}
+            accessibilityLabel={`${lang.name}, ${lang.endonym}${disabled ? ', yakında' : previewCount ? `, önizleme, ${previewCount} senaryo` : ''}`}
             disabled={disabled}
             onPress={() => onChange(code)}
             style={({ pressed }) => [
@@ -82,7 +85,7 @@ export function TargetLanguagePicker({ options, value, onChange, soon = [] }: {
               <View style={styles.sub}>
                 <Flag code={lang.flag} width={14} />
                 <Text numberOfLines={1} style={{ fontFamily: fonts.medium, fontSize: 12, color: c.textMuted, flexShrink: 1 }}>
-                  {disabled ? 'Yakında' : lang.endonym}
+                  {disabled ? 'Yakında' : previewCount ? `Önizleme · ${previewCount} senaryo` : lang.endonym}
                 </Text>
               </View>
             </View>

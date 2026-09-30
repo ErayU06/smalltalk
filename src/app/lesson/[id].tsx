@@ -10,11 +10,12 @@ import { Waveform } from '@/components/lesson/Waveform';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Card, Chip, IconButton, Pill, ProgressBar, SoftNote, StatPill } from '@/components/ui/Primitives';
-import { getScenario } from '@/data/scenarios';
-import { matchAnswer, normalize } from '@/features/lesson/matchAnswer';
+import { isTargetLang, langName } from '@/data/languages';
+import { getScenario, progressKey } from '@/data/scenarios';
+import { hasKeyword, matchAnswer, normalize } from '@/features/lesson/matchAnswer';
 import { addToReview, getPrefs, getProfile, saveLessonResult, type Prefs } from '@/features/progress/db';
 import { useSpeechInput } from '@/features/speech/useSpeechInput';
-import { useTTS } from '@/features/speech/useTTS';
+import { useVoice } from '@/features/speech/useVoice';
 import { upperTR } from '@/theme/text';
 import { useTheme } from '@/theme/useTheme';
 import type { OpenStep } from '@/types/scenario';
@@ -23,8 +24,9 @@ const XP = { correct: 5, almost: 3, wrong: 1 } as const;
 const MAX_CHARS = 140;
 
 export default function Lesson() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const scenario = getScenario(id);
+  const q = useLocalSearchParams<{ id: string; lang?: string }>();
+  const lang = isTargetLang(q.lang) ? q.lang : 'en';
+  const scenario = getScenario(q.id, lang);
   const { c, type, fonts } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -42,7 +44,7 @@ export default function Lesson() {
   const step = scenario?.steps[index];
   const open = step && step.kind !== 'choice' ? (step as OpenStep) : null;
   const hints = useMemo(() => (open ? [...open.keywords.flat(), ...(open.wordBank ?? [])] : []), [open]);
-  const tts = useTTS(locale);
+  const tts = useVoice(locale, scenario?.npc);
   const mic = useSpeechInput(locale, hints);
   const slow = prefs?.anxiety === 'panic' || prefs?.anxiety === 'pronunciation';
   const speechMode = step?.kind === 'speech' && !typeInstead && prefs?.speechEnabled !== false;
@@ -77,7 +79,7 @@ export default function Lesson() {
 
   function evaluateOpen(answer: string) {
     if (!open) return;
-    const r = matchAnswer(answer, open.acceptedAnswers, open.keywords, open.mistakes);
+    const r = matchAnswer(answer, open.acceptedAnswers, open.keywords, open.mistakes, lang);
     setFeedback({
       verdict: r.verdict,
       score: r.score,
@@ -86,7 +88,7 @@ export default function Lesson() {
       suggestion: r.closest,
       explanation: r.tip ?? (r.verdict === 'correct' ? scenario!.pattern.note : open.why),
     });
-    if (r.verdict === 'wrong') addToReview(scenario!.id, step!.id, answer, r.closest);
+    if (r.verdict === 'wrong') addToReview(progressKey(scenario!.id, lang), step!.id, answer, r.closest);
   }
 
   function evaluateChoice() {
@@ -117,10 +119,10 @@ export default function Lesson() {
     const avg = all.reduce((a, r) => a + r.score, 0) / Math.max(1, all.length);
     const xp = all.reduce((a, r) => a + r.xp, 0);
     const durationSec = (Date.now() - startedAt.current) / 1000;
-    const saved = await saveLessonResult(scenario!.id, avg, xp, durationSec);
+    const saved = await saveLessonResult(progressKey(scenario!.id, lang), avg, xp, durationSec);
     router.replace({
       pathname: '/lesson/complete',
-      params: { id: scenario!.id, xp: String(xp), streak: String(saved.streak), natural: String(all.filter((r) => r.verdict === 'correct').length), total: String(all.length) },
+      params: { id: scenario!.id, lang, xp: String(xp), streak: String(saved.streak), natural: String(all.filter((r) => r.verdict === 'correct').length), total: String(all.length) },
     });
   }
 
@@ -130,7 +132,7 @@ export default function Lesson() {
     mic.reset();
   }
 
-  const heard = open && mic.transcript ? open.keywords.flat().find((k) => ` ${normalize(mic.transcript)} `.includes(` ${normalize(k)} `)) : undefined;
+  const heard = open && mic.transcript ? open.keywords.flat().find((k) => hasKeyword(normalize(mic.transcript, lang), k, lang)) : undefined;
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -182,7 +184,7 @@ export default function Lesson() {
         {open && !speechMode && (
           <View style={{ gap: 12 }}>
             <View style={styles.between}>
-              <View style={styles.row6}><Icon name="edit" size={19} color={c.primary} /><Text style={[type.labelLg, { color: c.text }]}>Cevabını İngilizce yaz:</Text></View>
+              <View style={styles.row6}><Icon name="edit" size={19} color={c.primary} /><Text style={[type.labelLg, { color: c.text }]}>Cevabını {langName(lang)} yaz:</Text></View>
               <Text onPress={() => setText('')} accessibilityRole="button" style={[type.caption, { color: c.textMuted, padding: 6 }]}>Temizle</Text>
             </View>
             <Card style={{ gap: 8, shadowColor: c.buttonGlow, shadowOpacity: 0.15 }}>
@@ -265,8 +267,8 @@ export default function Lesson() {
           bottomInset={insets.bottom}
           onContinue={next}
           onRetry={retry}
-          onListen={feedback.suggestion ? () => tts.speak(feedback.suggestion!, { slow }) : undefined}
-          onSave={feedback.verdict !== 'correct' && feedback.userText ? () => addToReview(scenario.id, step.id, feedback.userText!, feedback.suggestion ?? '') : undefined}
+          onListen={feedback.suggestion ? () => tts.speak(feedback.suggestion!, { as: 'narrator', slow }) : undefined}
+          onSave={feedback.verdict !== 'correct' && feedback.userText ? () => addToReview(progressKey(scenario.id, lang), step.id, feedback.userText!, feedback.suggestion ?? '') : undefined}
         />
       ) : null}
     </KeyboardAvoidingView>

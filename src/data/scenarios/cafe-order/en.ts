@@ -1,0 +1,76 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+const en: ScenarioVariant = {
+  locale: 'en-US',
+  title: 'Kafede sipariş ver, ismini söyle',
+  description: 'Baristanın hızlı sorularına paniklemeden sade ve net yanıt verme provası.',
+  placeLabel: '3. Nesil Kafe',
+  mood: 'Güler yüzlü barista',
+  pattern: { text: 'Could I get a latte, please?', note: 'Nazikçe rica etme kalıbı · A2' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: 'Hi there! What can I get started for you today?',
+      hint: { tr: 'Kibar bir sipariş kalıbı seç.' },
+      prompt: 'Kibarca siparişini ver:',
+      options: [
+        { text: 'Could I get an iced oat latte, please?', correct: true, feedback: 'Hem samimi hem de en kibar sipariş kalıbı.' },
+        { text: 'Give me one coffee right now.', correct: false, near: true, feedback: '"Give me…" kafede emredici duyulabilir. "Could I get…" ya da "I\'d like…" dene.' },
+        { text: 'I want reading a book here.', correct: false, feedback: 'Bu cümle kitap okumak istediğini anlatıyor; barista senden sipariş bekliyor.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: 'Sure thing! What size would you like?',
+      hint: { tr: 'Boyutu söyle ve "please" ekle.', example: 'A medium…' },
+      acceptedAnswers: ['A medium, please.', 'Medium, please.', "I'd like a small one, please.", 'Large, please.', 'Can I get a large?'],
+      keywords: [['small', 'medium', 'large', 'regular']],
+      wordBank: ['small', 'medium', 'large', 'please', "I'd like"],
+      why: 'Sipariş verirken "please" eklemek ve "I want" yerine "I\'d like" demek daha yumuşak duyulur.',
+      mistakes: [{ match: '^i want', tip: '"I want…" kafede sert duyulabilir; "I\'d like…" ya da "Could I get…" daha doğal.' }],
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: 'Is that for here or to go?',
+      hint: { tr: 'Burada mı içeceksin, yanına mı alacaksın? Söyle.', example: 'To go…' },
+      acceptedAnswers: ['To go, please.', 'For here, please.', "I'll have it here.", "It's to go, thanks."],
+      keywords: [['to go', 'here', 'take away', 'takeaway']],
+      wordBank: ['To go', 'For here', 'please'],
+      why: 'Kısa cevap yeterli: "To go, please." ya da "For here, please."',
+    },
+    {
+      id: 's4',
+      kind: 'text',
+      npcLine: 'Great. What name should I put on the cup?',
+      hint: { tr: 'İsmini söyle: "It\'s …"', example: "It's…" },
+      acceptedAnswers: ["It's Deniz.", 'My name is Deniz.', "It's Deniz, thanks!", 'Deniz.'],
+      keywords: [["it's", 'it is', 'name', 'deniz']],
+      wordBank: ["It's…", 'My name is…', 'thanks'],
+      why: 'Kısa cevap yeterli: "It\'s …" en doğal olanı.',
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: "You got it! It'll be ready in a minute. Have a great day!",
+      hint: { tr: 'Teşekkür et ve iyi günler dile.', example: 'Thanks, you too…' },
+      acceptedAnswers: ['Thanks, you too!', 'Thank you, you too!', 'Thanks so much, have a good one!', 'Thanks, have a nice day!'],
+      keywords: [['thanks', 'thank you', 'cheers'], ['you too', 'have a', 'nice day', 'good one', 'great day']],
+      wordBank: ['Thanks', 'you too', 'have a good one'],
+      why: '"Have a great day!" cevabı en doğal şekilde "Thanks, you too!" olur.',
+      mistakes: [{ match: '^(thanks|thank you) and you', tip: '"And you" yerine İngilizcede "you too" denir.' }],
+    },
+  ],
+  vocab: [
+    { text: 'Could I get…?', tr: '… alabilir miyim?' },
+    { text: 'for here / to go', tr: 'burada / götürmek üzere' },
+    { text: 'oat milk', tr: 'yulaf sütü' },
+    { text: 'What size?', tr: 'Hangi boy?' },
+    { text: 'Have a great day!', tr: 'İyi günler!' },
+  ],
+  curveballs: ["Sorry, we're out of oat milk. Is almond milk okay?"],
+};
+
+export default en;

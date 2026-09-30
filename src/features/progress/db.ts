@@ -1,10 +1,11 @@
 import * as SQLite from 'expo-sqlite';
 import { localDay, yesterday } from './day';
+import { LEGACY_IDS } from './legacy';
 
 /** Local-first depo: ilerleme, tercihler, tekrar kuyruğu. Bulut senkronu sonraki aşama. */
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 async function migrate(db: SQLite.SQLiteDatabase) {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
@@ -47,6 +48,13 @@ async function migrate(db: SQLite.SQLiteDatabase) {
         user_text TEXT, suggestion TEXT, created_at TEXT NOT NULL
       );
     `);
+  }
+  if (v < 3) {
+    // İlerleme artık dil bazında: "cafe-order-en-1" → "cafe-order:en"
+    for (const [from, to] of Object.entries(LEGACY_IDS)) {
+      await db.runAsync('UPDATE lesson_results SET scenario_id = ? WHERE scenario_id = ?', to, from);
+      await db.runAsync('UPDATE review_queue SET scenario_id = ? WHERE scenario_id = ?', to, from);
+    }
   }
   await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);
 }

@@ -1,4 +1,5 @@
 import type { FlagCode } from '../components/ui/Flag';
+import type { TargetLang } from '../types/scenario';
 
 export interface Language {
   /** ISO 639-1 dil kodu (kayıt için) */
@@ -25,7 +26,13 @@ export const LANGUAGES: Record<Language['code'], Language> = {
 
 /** Tasarımdaki sırayla */
 export const NATIVE_OPTIONS: Language['code'][] = ['tr', 'en', 'de', 'fr', 'ru', 'zh', 'ko'];
-export const TARGET_OPTIONS: Language['code'][] = ['en', 'de', 'fr', 'ru', 'zh', 'ko'];
+export const TARGET_OPTIONS: TargetLang[] = ['en', 'de', 'fr', 'ru', 'zh', 'ko'];
 
-/** Şu an senaryo içeriği olan hedef diller. Yeni dil içeriği eklendikçe buraya ekle. */
-export const TARGETS_WITH_CONTENT: Language['code'][] = ['en'];
+/** Kılavuz: bir dil 12 ücretsiz senaryosu hazır olunca "tam" sayılır; öncesinde "önizleme". */
+export const FULL_CONTENT_FREE_SCENARIOS = 12;
+
+export const isTargetLang = (code: string | null | undefined): code is TargetLang =>
+  !!code && (TARGET_OPTIONS as string[]).includes(code);
+
+/** "Cevabını Almanca yaz" gibi yönlendirmeler için: "Almanca" */
+export const langName = (lang: TargetLang) => LANGUAGES[lang].name;
