@@ -39,7 +39,7 @@ Claude Code bu dosyayla çalışır. Her faz kendi dalında yapılır (`faz-1-se
 **Servis:** Google Cloud Text-to-Speech, **Chirp 3: HD** sesleri (ayda 1 milyon karakter ücretsiz; 20 senaryo × 6 dil ≈ 100–150 bin karakter). Yedek seçenek: Azure Neural TTS (ayda 500 bin karakter ücretsiz).
 
 ### 1a · Hemen (anahtar gerektirmez)
-- [ ] 🤖 `useTTS`: platforma göre en iyi cihaz sesini seç (iOS: Premium > Enhanced > varsayılan; Android: yüksek kaliteli/ağ sesleri), karaktere göre farklı ses (kadın/erkek) ve perde/hız ayarı
+- [x] 🤖 `useTTS`: platforma göre en iyi cihaz sesini seç (iOS: Premium > Enhanced > varsayılan; Android: yüksek kaliteli/ağ sesleri), karaktere göre farklı ses (kadın/erkek) ve perde/hız ayarı
 - [ ] 🤖 Profil → "Sesler": cihazdaki sesleri listele, örnek cümleyle dinlet, "daha kaliteli ses indir" yönlendirmesi (iOS: Ayarlar › Erişilebilirlik › Seslendirilen İçerik › Sesler; Android: TTS ayarları intent'i)
 
 ### 1b · Gömülü profesyonel sesler
@@ -63,8 +63,8 @@ Claude Code bu dosyayla çalışır. Her faz kendi dalında yapılır (`faz-1-se
 
 ## Faz 2 · Beş yeni dil: Almanca, Fransızca, Rusça, Çince, Korece
 
-- [ ] 🤖 `LocaleCode`: `de-DE`, `fr-FR`, `ru-RU`, `zh-CN`, `ko-KR` (+ mevcut `en-US`, `en-GB`). Konuşma tanıma için platforma göre doğru kod (`getSupportedLocales()` ile kontrol; Android'de Çince `cmn-Hans-CN` olabilir).
-- [ ] 🤖 **Dile duyarlı `matchAnswer`:**
+- [x] 🤖 `LocaleCode`: `de-DE`, `fr-FR`, `ru-RU`, `zh-CN`, `ko-KR` (+ mevcut `en-US`, `en-GB`). Konuşma tanıma için platforma göre doğru kod (`getSupportedLocales()` ile kontrol; Android'de Çince `cmn-Hans-CN` olabilir).
+- [x] 🤖 **Dile duyarlı `matchAnswer`:**
   - ortak: Unicode NFC, noktalama (Çince/Korece tam genişlik `。，？！` dahil) temizleme
   - İngilizce: mevcut kısaltma tablosu
   - Fransızca: kesme işaretleri (`j'aimerais`), aksanları karşılaştırmada yok say (kullanıcı `cafe` yazarsa `café` sayılsın)
@@ -73,11 +73,11 @@ Claude Code bu dosyayla çalışır. Her faz kendi dalında yapılır (`faz-1-se
   - Çince: kelime boşluğu yok → karakter tabanlı benzerlik, anahtar kelimede alt dize eşleşmesi
   - Korece: ekler kelimeye yapışık (`커피를`) → anahtar kelimede alt dize eşleşmesi
   - her dil için en az 4 test (doğru, neredeyse, yanlış, bilinen hata)
-- [ ] 🤖 **Okunuş:** Çince (pinyin), Korece (romanizasyon), Rusça (Latin harfli okunuş) için `romanization` alanı; NPC balonunda "Okunuşu göster" düğmesi (varsayılan kapalı; kaygı "telaffuz" seçildiyse açık)
+- [x] 🤖 **Okunuş:** Çince (pinyin), Korece (romanizasyon), Rusça (Latin harfli okunuş) için `romanization` alanı; NPC balonunda "Okunuşu göster" düğmesi (varsayılan kapalı; kaygı "telaffuz" seçildiyse açık)
 - [ ] 🤖 **Çince/Korece yazma adımları:** klavye zor olduğu için kelime bankası "dokunarak cümle kur" moduna geçer (çipler sırayla eklenir, sil düğmesi var); serbest yazma da açık kalır
 - [ ] 🤖 Cihazda dil desteği kontrolü: seçilen hedef dil için konuşma tanıma veya TTS sesi yoksa kibar bir kart ("Telefonunda Korece konuşma paketi yok. İndirmek için…"), Android'de `androidTriggerOfflineModelDownload`
 - [ ] 🧑 **Karar:** Arayüz şimdilik Türkçe. Ana dil olarak Türkçe dışı seçilirse ne olsun? (a) Seçenekleri şimdilik sadece Türkçe yap, (b) İngilizce arayüz çevirisi ekle (i18n, ayrı iş)
-- [ ] 🤖 Her dil içeriği hazır oldukça `TARGETS_WITH_CONTENT`'e ekle (onboarding'deki "Yakında" kalkar)
+- [x] 🤖 Dil durumu otomatik: 12 ücretsiz senaryo → tam; en az 1 → "Önizleme · N senaryo" (seçilebilir); hiç yok → "Yakında" (`src/data/availability.ts`)
 
 **Bitti sayılır:** Altı dilde de en az bir senaryo baştan sona oynanıyor; konuşma tanıma ve değerlendirme her dilde doğru çalışıyor.
 
@@ -87,9 +87,10 @@ Claude Code bu dosyayla çalışır. Her faz kendi dalında yapılır (`faz-1-se
 
 Yazım kuralları, senaryo listesi ve dil bazında kibarlık/hata notları: **`docs/ICERIK-KILAVUZU.md`**
 
-- [ ] 🤖 Senaryo yapısını "ortak iskelet + dil varyantı" olarak ayır: `src/data/scenarios/<id>/index.ts` (ayar, seviye, süre, görsel, karakter) + `en.ts`, `de.ts`, `fr.ts`, `ru.ts`, `zh.ts`, `ko.ts` (replikler, cevaplar, yer adları; kültüre uyarlanmış)
-- [ ] 🤖 **İçerik doğrulama testi:** her `acceptedAnswers` kendi adımında `correct`; `mistakes` regex'leri derleniyor; çoktan seçmelide tam 1 doğru; her adımda Türkçe `hint`; her dilde aynı adım sayısı
-- [ ] 🤖 Önce **İngilizce 20 senaryo** (kılavuzdaki liste), sonra her dil için kültüre uyarlanmış varyantlar (`/senaryo-ekle` ve `/dil-ekle` komutları)
+- [x] 🤖 Senaryo yapısını "ortak iskelet + dil varyantı" olarak ayır: `src/data/scenarios/<id>/index.ts` (ayar, seviye, süre, görsel, karakter) + `en.ts`, `de.ts`, `fr.ts`, `ru.ts`, `zh.ts`, `ko.ts` (replikler, cevaplar, yer adları; kültüre uyarlanmış)
+- [x] 🤖 **İçerik doğrulama testi:** her `acceptedAnswers` kendi adımında `correct`; `mistakes` regex'leri derleniyor; çoktan seçmelide tam 1 doğru; her adımda Türkçe `hint`; her dilde aynı adım sayısı
+- [x] 🤖 Önce **İngilizce 20 senaryo** (kılavuzdaki liste)
+- [ ] 🤖 Her dil için kültüre uyarlanmış varyantlar (`/dil-ekle`). Şu an: `cafe-order` 6 dilde; diğer 19 senaryo DE/FR/RU/ZH/KO'da eksik
 - [ ] 🤖 `docs/inceleme/<dil>.md`: anadili o dil olan birinin kontrol etmesi için tüm replik ve cevapların düz listesi
 - [ ] 🧑 Her dil için anadili o dil olan birine inceleme listesini okut (doğallık en önemli şey). Düzeltmeleri Claude Code'a ver.
 - [ ] 🧑 Paywall'daki "12 temel / 150+ özel senaryo" iddiasını gerçek sayıyla değiştir (`src/features/paywall/paywallConfig.ts`)
@@ -120,13 +121,15 @@ Stil kuralları, kapak sahneleri ve portre şablonu: `docs/ICERIK-KILAVUZU.md` �
 
 ## Faz 5 · Her gün kullanılabilir olsun (alışkanlık döngüsü)
 
-- [ ] 🤖 **Günün sahnesi:** her gün ilgi alanlarına ve seviyeye göre seçilen tek bir 3–5 dakikalık senaryo; ana sayfada en üstte
-- [ ] 🤖 **Hatırlatma bildirimi** (`expo-notifications`, yerel, ücretsiz): onboarding'de seçilen saatte; izin ilk dersten sonra istenir; metinler nazik ve dönüşümlü, suçlayıcı değil
+- [x] 🤖 **Günün sahnesi:** ("Günün Meydan Okuması", +10 XP) her gün ilgi alanlarına ve seviyeye göre seçilen tek bir 3–5 dakikalık senaryo; ana sayfada en üstte
+- [x] 🤖 **Hatırlatma bildirimi** (`expo-notifications`, yerel, ücretsiz): onboarding'de seçilen saatte; izin ilk dersten sonra istenir; metinler nazik ve dönüşümlü, suçlayıcı değil
 - [ ] 🤖 **Seri dondurma:** ücretsiz haftada 1, Pro 3; kaçırılan gün otomatik korunur
 - [ ] 🤖 **Tekrar kuyruğu ekranı:** zorlanılan cümleler; 1, 3, 7 gün aralıklı tekrar
 - [ ] 🤖 **Yarım kalan ders:** kaldığı yerden "Devam Et"
 - [ ] 🤖 **İlerlemem:** son 7 günün dakika/XP grafiği, seri takvimi
 - [ ] 🤖 Seri, dondurma ve tekrar aralığı mantığı için birim testleri (gün geçişi, saat dilimi)
+- [x] 🤖 **Rozetler** (9 rozet: ilk ders, 3/7/30 gün seri, kusursuz prova, çok dilli, kelime avcısı, meydan okuyucu, 10 ders) ders sonunda ve İlerlemem'de
+- [x] 🤖 **Kelime sandığı** (`/kelimeler`): her dersin kelime kartları; dokun → anlamı, dinle
 
 ---
 

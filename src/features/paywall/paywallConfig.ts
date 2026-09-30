@@ -64,8 +64,8 @@ export interface FeatureRow {
 export const features: FeatureRow[] = [
   { id: 'time', icon: 'timer', title: 'Günlük Pratik Süresi', free: '5 dk / gün', pro: 'Sınırsız pratik', proTone: 'coral' },
   {
-    id: 'library', icon: 'compass', title: 'Senaryo Kütüphanesi', free: '12 temel senaryo', pro: '150+ özel senaryo', proTone: 'amber',
-    detail: 'İş mülakatı, vize görüşmesi, doktor randevusu ve fazlası',
+    id: 'library', icon: 'compass', title: 'Senaryo Kütüphanesi', free: '12 temel senaryo', pro: '20 senaryonun hepsi', proTone: 'amber',
+    detail: 'Otel, havalimanı, iş mülakatı, doktor randevusu ve fazlası',
   },
   { id: 'review', icon: 'repeat', title: 'Kişisel Tekrar Kuyruğu', free: 'Son ders', pro: 'Zorlandığın her cümle', proTone: 'text' },
   { id: 'offline', icon: 'plane', title: 'Çevrimdışı Pratik Modu', free: '—', pro: 'Metro ve uçakta', proTone: 'calm' },

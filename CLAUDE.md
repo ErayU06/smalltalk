@@ -33,6 +33,8 @@ Expo Go ÇALIŞMAZ (expo-speech-recognition native modül).
   - Web: `db.web.ts` aynı fonksiyonları localStorage'daki sahte depoyla sunar. db.ts'ye fonksiyon eklersen db.web.ts'ye de ekle.
 - Senaryolar veri: `src/data/scenarios/`. Yazım kuralları: `docs/ICERIK-KILAVUZU.md`.
 - Cevap değerlendirme `src/features/lesson/matchAnswer.ts` dile duyarlı olmalı (Çince boşluksuz, Korece ekler, aksanlar). Her dil için test.
+  - `mistakes[].match` normalize edilmiş cevapta aranır: küçük harf, noktalamasız; EN kısaltmalar açık ("i'd" → "i would"), FR aksansız ve kesme işaretsiz, DE ä → ae / ß → ss, RU ё → е, ZH/KO boşluksuz; sayılar rakam (ZH 两 → 2, KO 한 잔 → 1잔).
+- Çoktan seçmelide doğru şıkkı içerikte ilk yaz; ekranda kararlı biçimde karıştırılır.
 
 ## Tasarım kuralları (Stitch + paywall)
 - Renk/yazı/köşe SADECE `src/theme/tokens.ts` üzerinden: `const { c, type, radius } = useTheme()`. Bileşende hex yazma.
@@ -40,7 +42,7 @@ Expo Go ÇALIŞMAZ (expo-speech-recognition native modül).
 - Yazılı butonlar `Button` (buttonGradient). #FF6B4A (`c.brand`) üstüne beyaz yazı KOYMA: 2.8:1, okunmaz.
 - Büyük harfli metin için `upperTR()` (src/theme/text.ts) kullan; `textTransform: 'uppercase'` "Dilim"i "DILIM" yapar.
 - Bayraklar: `<Flag code="tr" />` (src/components/ui/Flag.tsx, SVG). Emoji bayrak kullanma.
-- Diller tek yerden: src/data/languages.ts. Yeni hedef dilin içeriği gelince TARGETS_WITH_CONTENT'e ekle, "Yakında" kalkar.
+- Diller tek yerden: src/data/languages.ts. Dil durumu içerikten otomatik hesaplanır (src/data/availability.ts): 12 ücretsiz senaryo → tam, en az 1 → "Önizleme", hiç yok → "Yakında".
 - Kırmızı/`error` rengi kullanma. Geri bildirim: correct = yeşil, almost = kehribar, wrong = mercan "Endişelenme!".
 - Uygulamanın yapamadığı şeyi vaat eden metin yazma: telaffuz/aksan puanı, "yapay zekâ ile sohbet", ses kaydı yok.
 - Uydurma kullanıcı yorumu ekleme (paywallConfig.testimonial yalnızca gerçek, izinli yorum).
@@ -50,7 +52,7 @@ Expo Go ÇALIŞMAZ (expo-speech-recognition native modül).
 
 ## Klasör yapısı
 - `src/app/` → sadece ekranlar/rotalar (ince tut)
-- `src/features/<modül>/` → iş mantığı + hook'lar
+- `src/features/<modül>/` → iş mantığı + hook'lar (lesson, progress, speech, engagement: rozet, kelime sandığı, meydan okuma, hatırlatma)
 - `src/components/{ui,lesson,home,paywall,onboarding,illustrations}` → paylaşılan UI
 - `src/data/` → içerik · `src/types/` → tipler · `src/theme/` → tokenlar
 - `scripts/` → geliştirme betikleri (ses/görsel üretimi) · `assets/audio/`, `assets/images/scenarios/` → üretilmiş içerik
