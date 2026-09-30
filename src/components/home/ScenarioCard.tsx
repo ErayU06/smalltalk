@@ -29,7 +29,8 @@ export function ScenarioCard({ scenario: s, variant, progress = 0, onPress, imag
     image ? <Image source={image} style={{ width: w, height: h, opacity: dimmed ? 0.5 : 1 }} resizeMode="cover" /> : <Scene setting={s.setting} width={w} height={h} dimmed={dimmed} />;
 
   if (variant === 'feature') {
-    const w = width - 40 - 32;
+    // Statik render sırasında pencere genişliği 0 gelir; SVG'ye negatif genişlik verme
+    const w = Math.max(1, width - 40 - 32);
     return (
       <Card style={{ gap: 10 }}>
         <View style={[styles.hero, { borderRadius: radius.md }]}>

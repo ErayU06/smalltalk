@@ -34,5 +34,10 @@ export const FULL_CONTENT_FREE_SCENARIOS = 12;
 export const isTargetLang = (code: string | null | undefined): code is TargetLang =>
   !!code && (TARGET_OPTIONS as string[]).includes(code);
 
+/** Dilin varsayılan ses/tanıma yerel ayarı (senaryo kendi locale'ini de belirtebilir: en-GB) */
+export const DEFAULT_LOCALE: Record<TargetLang, import('../types/scenario').LocaleCode> = {
+  en: 'en-US', de: 'de-DE', fr: 'fr-FR', ru: 'ru-RU', zh: 'zh-CN', ko: 'ko-KR',
+};
+
 /** "Cevabını Almanca yaz" gibi yönlendirmeler için: "Almanca" */
 export const langName = (lang: TargetLang) => LANGUAGES[lang].name;

@@ -100,7 +100,7 @@ export function HintAccordion({ hint }: { hint: Hint }) {
     <View>
       <Pressable
         accessibilityRole="button"
-        accessibilityState={{ expanded: open }}
+        aria-expanded={open}
         onPress={() => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           setOpen((o) => !o);

@@ -43,6 +43,7 @@ export default function RootLayout() {
         <Stack.Screen name="lesson/[id]" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="lesson/complete" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
         <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="kelimeler" />
       </Stack>
     </>
   );

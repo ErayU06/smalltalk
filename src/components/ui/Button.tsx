@@ -56,7 +56,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: !!disabled, busy: !!loading }}
+      aria-disabled={!!disabled} aria-busy={!!loading}
       disabled={disabled || loading}
       onPress={onPress}
       style={({ pressed }) => [

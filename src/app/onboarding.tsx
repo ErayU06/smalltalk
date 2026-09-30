@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { ExpoSpeechRecognitionModule } from 'expo-speech-recognition';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Scene } from '@/components/illustrations/Scene';
@@ -13,6 +13,7 @@ import { availability } from '@/data/availability';
 import { NATIVE_OPTIONS, TARGET_OPTIONS, type Language } from '@/data/languages';
 import { contentCount } from '@/data/scenarios';
 import { getPrefs, savePrefs, type Anxiety, type Interest, type Prefs } from '@/features/progress/db';
+import { syncReminders } from '@/features/engagement/reminders';
 import { useTheme } from '@/theme/useTheme';
 import type { Setting } from '@/types/scenario';
 
@@ -43,12 +44,17 @@ export default function Onboarding() {
   const [p, setP] = useState<Omit<Prefs, 'onboardedAt'>>({
     nativeLang: 'tr', targetLang: 'en', anxiety: null, interests: [], dailyMinutes: 5, reminderTime: '20:00', speechEnabled: true,
   });
-  const set = (patch: Partial<typeof p>) => setP((prev) => ({ ...prev, ...patch }));
+  // Kullanıcı bir şey seçtiyse, sonradan gelen kayıtlı tercihler onun üzerine yazmasın
+  const touched = useRef(false);
+  const set = (patch: Partial<typeof p>) => {
+    touched.current = true;
+    setP((prev) => ({ ...prev, ...patch }));
+  };
 
   // Profil'den tekrar açılırsa mevcut tercihleri yükle
   useEffect(() => {
     getPrefs().then((saved) => {
-      if (saved.onboardedAt) {
+      if (saved.onboardedAt && !touched.current) {
         const { onboardedAt: _ignored, ...rest } = saved;
         setP(rest);
       }
@@ -56,8 +62,8 @@ export default function Onboarding() {
   }, []);
 
   const finish = async () => {
-    // TODO: reminderTime doluysa expo-notifications ile yerel günlük bildirim planla
     await savePrefs(p);
+    syncReminders({ ...p, onboardedAt: null }).catch(() => undefined);
     router.dismissTo('/');
   };
 
@@ -149,7 +155,7 @@ export default function Onboarding() {
               {INTERESTS.map((it) => {
                 const sel = p.interests.includes(it.id);
                 return (
-                  <Pressable key={it.id} accessibilityRole="checkbox" accessibilityState={{ checked: sel }} accessibilityLabel={`${it.title}: ${it.desc}`}
+                  <Pressable key={it.id} accessibilityRole="checkbox" aria-checked={sel} accessibilityLabel={`${it.title}: ${it.desc}`}
                     onPress={() => set({ interests: sel ? p.interests.filter((x) => x !== it.id) : [...p.interests, it.id] })}
                     style={[styles.tile, { backgroundColor: c.surface, borderRadius: radius.lg, shadowColor: sel ? c.buttonGlow : c.shadow },
                       sel ? { borderWidth: 2, borderColor: c.brand, ...elevation.raised, shadowOpacity: 0.25 } : elevation.card]}>

@@ -14,7 +14,7 @@ export function PlanCard({ plan, selected, onSelect }: Props) {
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+      aria-checked={selected}
       accessibilityLabel={`${plan.title}, ayda ${plan.pricePerMonth}. ${plan.note}${plan.trialDays ? `. ${plan.trialDays} gün ücretsiz` : ''}`}
       onPress={() => {
         if (!selected) Haptics.selectionAsync();

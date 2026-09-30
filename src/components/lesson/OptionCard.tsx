@@ -11,7 +11,7 @@ export function OptionCard({ letter, text, roman, selected, disabled, onPress }:
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ selected, disabled: !!disabled }}
+      aria-checked={selected} aria-disabled={!!disabled}
       accessibilityLabel={`${letter}: ${text}`}
       disabled={disabled}
       onPress={onPress}

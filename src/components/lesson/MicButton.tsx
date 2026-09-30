@@ -46,7 +46,7 @@ export function MicButton({ listening, onPress, disabled }: { listening: boolean
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={listening ? 'Dinlemeyi bitir' : 'Konuşmaya başla'}
-        accessibilityState={{ disabled: !!disabled }}
+        aria-disabled={!!disabled}
         disabled={disabled}
         onPress={onPress}
         style={({ pressed }) => [styles.btn, { shadowColor: c.buttonGlow, opacity: disabled ? 0.5 : 1, transform: [{ scale: pressed ? 0.92 : 1 }] }]}

@@ -1,11 +1,12 @@
 import * as SQLite from 'expo-sqlite';
 import { localDay, yesterday } from './day';
 import { LEGACY_IDS } from './legacy';
+import type { VocabItem } from '../../types/scenario';
 
 /** Local-first depo: ilerleme, tercihler, tekrar kuyruğu. Bulut senkronu sonraki aşama. */
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 4;
 
 async function migrate(db: SQLite.SQLiteDatabase) {
   const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
@@ -56,6 +57,19 @@ async function migrate(db: SQLite.SQLiteDatabase) {
       await db.runAsync('UPDATE review_queue SET scenario_id = ? WHERE scenario_id = ?', to, from);
     }
   }
+  if (v < 4) {
+    await db.execAsync(`
+      ALTER TABLE lesson_results ADD COLUMN perfect INTEGER NOT NULL DEFAULT 0;
+      CREATE TABLE IF NOT EXISTS word_cards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        lang TEXT NOT NULL, text TEXT NOT NULL, tr TEXT NOT NULL, roman TEXT,
+        scenario_id TEXT NOT NULL, added_at TEXT NOT NULL,
+        UNIQUE (lang, text)
+      );
+      CREATE TABLE IF NOT EXISTS badges (id TEXT PRIMARY KEY, earned_at TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS challenge_log (day TEXT PRIMARY KEY, scenario_id TEXT NOT NULL);
+    `);
+  }
   await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);
 }
 
@@ -90,7 +104,7 @@ export async function getTodayMinutes(): Promise<number> {
   return Math.round((r?.s ?? 0) / 60);
 }
 
-export async function saveLessonResult(scenarioId: string, score: number, xp: number, durationSec: number) {
+export async function saveLessonResult(scenarioId: string, score: number, xp: number, durationSec: number, perfect = false) {
   const d = await getDb();
   const raw = (await d.getFirstAsync<Profile>('SELECT total_xp, streak, last_active_day FROM profile WHERE id = 1'))!;
   const t = localDay();
@@ -98,8 +112,8 @@ export async function saveLessonResult(scenarioId: string, score: number, xp: nu
 
   await d.withTransactionAsync(async () => {
     await d.runAsync(
-      'INSERT INTO lesson_results (scenario_id, score, xp, completed_at, duration_sec, day) VALUES (?, ?, ?, ?, ?, ?)',
-      scenarioId, score, xp, new Date().toISOString(), Math.round(durationSec), t,
+      'INSERT INTO lesson_results (scenario_id, score, xp, completed_at, duration_sec, day, perfect) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      scenarioId, score, xp, new Date().toISOString(), Math.round(durationSec), t, perfect ? 1 : 0,
     );
     await d.runAsync('UPDATE profile SET total_xp = total_xp + ?, streak = ?, last_active_day = ? WHERE id = 1', xp, streak, t);
   });
@@ -154,4 +168,62 @@ export async function addToReview(scenarioId: string, stepId: string, userText: 
     'INSERT INTO review_queue (scenario_id, step_id, user_text, suggestion, created_at) VALUES (?, ?, ?, ?, ?)',
     scenarioId, stepId, userText, suggestion, new Date().toISOString(),
   );
+}
+
+/* ───────────── Kelime sandığı ───────────── */
+export type WordCard = { lang: string; text: string; tr: string; roman: string | null; scenario_id: string; added_at: string };
+
+/** Dersin kelimelerini sandığa ekler; zaten olanları atlar. Yeni eklenen sayısını döner. */
+export async function addWords(lang: string, items: VocabItem[], scenarioKey: string): Promise<number> {
+  const d = await getDb();
+  let added = 0;
+  for (const w of items) {
+    const r = await d.runAsync(
+      'INSERT OR IGNORE INTO word_cards (lang, text, tr, roman, scenario_id, added_at) VALUES (?, ?, ?, ?, ?, ?)',
+      lang, w.text, w.tr, w.roman ?? null, scenarioKey, new Date().toISOString(),
+    );
+    added += r.changes;
+  }
+  return added;
+}
+
+export async function getWords(): Promise<WordCard[]> {
+  const d = await getDb();
+  return d.getAllAsync<WordCard>('SELECT lang, text, tr, roman, scenario_id, added_at FROM word_cards ORDER BY added_at DESC, id DESC');
+}
+
+/* ───────────── Rozetler ve günün meydan okuması ───────────── */
+export async function getEarnedBadges(): Promise<{ id: string; earned_at: string }[]> {
+  const d = await getDb();
+  return d.getAllAsync('SELECT id, earned_at FROM badges ORDER BY earned_at');
+}
+
+export async function saveBadges(ids: string[]) {
+  const d = await getDb();
+  for (const id of ids) await d.runAsync('INSERT OR IGNORE INTO badges (id, earned_at) VALUES (?, ?)', id, new Date().toISOString());
+}
+
+export async function isChallengeDone(day: string) {
+  const d = await getDb();
+  return !!(await d.getFirstAsync('SELECT day FROM challenge_log WHERE day = ?', day));
+}
+
+export async function markChallengeDone(day: string, scenarioKey: string) {
+  const d = await getDb();
+  await d.runAsync('INSERT OR IGNORE INTO challenge_log (day, scenario_id) VALUES (?, ?)', day, scenarioKey);
+}
+
+/** Rozet kuralları için sayılar (src/features/engagement/badges.ts) */
+export async function getStats() {
+  const d = await getDb();
+  const one = async (sql: string) => (await d.getFirstAsync<{ n: number }>(sql))?.n ?? 0;
+  const keys = await d.getAllAsync<{ scenario_id: string }>('SELECT DISTINCT scenario_id FROM lesson_results');
+  return {
+    lessons: await one('SELECT COUNT(*) AS n FROM lesson_results'),
+    streak: (await getProfile()).streak,
+    perfectLessons: await one('SELECT COUNT(*) AS n FROM lesson_results WHERE perfect = 1'),
+    languages: new Set(keys.map((k) => k.scenario_id.split(':')[1] ?? 'en')).size,
+    words: await one('SELECT COUNT(*) AS n FROM word_cards'),
+    challenges: await one('SELECT COUNT(*) AS n FROM challenge_log'),
+  };
 }

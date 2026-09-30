@@ -104,7 +104,7 @@ export function SelectCard({ selected, onPress, title, tag, description, icon, m
   return (
     <Pressable
       accessibilityRole={multi ? 'checkbox' : 'radio'}
-      accessibilityState={multi ? { checked: selected } : { selected }}
+      aria-checked={selected}
       onPress={onPress}
       style={({ pressed }) => [
         styles.select,
@@ -139,7 +139,7 @@ export function Chip({ label, onPress, selected, icon }: { label: string; onPres
   const { c, fonts } = useTheme();
   return (
     <Pressable
-      accessibilityRole="button" accessibilityState={{ selected: !!selected }} onPress={onPress}
+      accessibilityRole="button" aria-selected={!!selected} onPress={onPress}
       style={({ pressed }) => [styles.chip, {
         backgroundColor: selected ? c.primarySoft : c.surfaceHigh,
         borderWidth: selected ? 2 : 0, borderColor: c.brand, transform: [{ scale: pressed ? 0.95 : 1 }],

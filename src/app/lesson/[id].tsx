@@ -13,7 +13,9 @@ import { Card, Chip, IconButton, Pill, ProgressBar, SoftNote, StatPill } from '@
 import { isTargetLang, langName } from '@/data/languages';
 import { getScenario, progressKey } from '@/data/scenarios';
 import { hasKeyword, matchAnswer, normalize } from '@/features/lesson/matchAnswer';
-import { addToReview, getPrefs, getProfile, saveLessonResult, type Prefs } from '@/features/progress/db';
+import { finishLesson } from '@/features/engagement/finishLesson';
+import { addToReview, getPrefs, getProfile, type Prefs } from '@/features/progress/db';
+import { stableOrder } from '@/features/lesson/shuffle';
 import { useSpeechInput } from '@/features/speech/useSpeechInput';
 import { useVoice } from '@/features/speech/useVoice';
 import { upperTR } from '@/theme/text';
@@ -24,7 +26,7 @@ const XP = { correct: 5, almost: 3, wrong: 1 } as const;
 const MAX_CHARS = 140;
 
 export default function Lesson() {
-  const q = useLocalSearchParams<{ id: string; lang?: string }>();
+  const q = useLocalSearchParams<{ id: string; lang?: string; challenge?: string }>();
   const lang = isTargetLang(q.lang) ? q.lang : 'en';
   const scenario = getScenario(q.id, lang);
   const { c, type, fonts } = useTheme();
@@ -124,10 +126,14 @@ export default function Lesson() {
     const avg = all.reduce((a, r) => a + r.score, 0) / Math.max(1, all.length);
     const xp = all.reduce((a, r) => a + r.xp, 0);
     const durationSec = (Date.now() - startedAt.current) / 1000;
-    const saved = await saveLessonResult(progressKey(scenario!.id, lang), avg, xp, durationSec);
+    const natural = all.filter((r) => r.verdict === 'correct').length;
+    const done = await finishLesson(scenario!, { score: avg, xp, durationSec, perfect: natural === all.length, challenge: q.challenge === '1' });
     router.replace({
       pathname: '/lesson/complete',
-      params: { id: scenario!.id, lang, xp: String(xp), streak: String(saved.streak), natural: String(all.filter((r) => r.verdict === 'correct').length), total: String(all.length) },
+      params: {
+        id: scenario!.id, lang, xp: String(done.xp), streak: String(done.streak), natural: String(natural), total: String(all.length),
+        bonus: String(done.challengeBonus), words: String(done.newWords), badges: done.newBadges.join(','),
+      },
     });
   }
 
@@ -180,9 +186,12 @@ export default function Lesson() {
               <Text style={[type.headlineLg, { fontSize: 22, color: c.text }]}>{step.prompt}</Text>
             </View>
             <View accessibilityRole="radiogroup" style={{ gap: 10 }}>
-              {step.options.map((o, i) => (
-                <OptionCard key={o.text} letter={String.fromCharCode(65 + i)} text={o.text} roman={showRoman ? o.roman : undefined} selected={choice === i} disabled={!!feedback} onPress={() => setChoice(i)} />
-              ))}
+              {stableOrder(step.options.length, `${scenario.id}:${step.id}`).map((i, pos) => {
+                const o = step.options[i];
+                return (
+                  <OptionCard key={o.text} letter={String.fromCharCode(65 + pos)} text={o.text} roman={showRoman ? o.roman : undefined} selected={choice === i} disabled={!!feedback} onPress={() => setChoice(i)} />
+                );
+              })}
             </View>
             <Button label="Cevabı Kontrol Et" iconRight="arrowRight" disabled={choice === null} onPress={evaluateChoice} />
           </View>

@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mascot } from '@/components/illustrations/Mascot';
@@ -9,18 +10,28 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { Card, IconButton, Pill } from '@/components/ui/Primitives';
 import { isTargetLang } from '@/data/languages';
 import { getScenario } from '@/data/scenarios';
+import { badgeById } from '@/features/engagement/badges';
+import { syncReminders } from '@/features/engagement/reminders';
+import { getPrefs } from '@/features/progress/db';
 import { useVoice } from '@/features/speech/useVoice';
 import { upperTR } from '@/theme/text';
 import { useTheme } from '@/theme/useTheme';
 
 /** Stitch "Ders Sonu – Başarı & Seri". Tüm sayılar gerçek ders sonucundan gelir. */
 export default function LessonComplete() {
-  const q = useLocalSearchParams<{ id: string; lang?: string; xp: string; streak: string; natural: string; total: string }>();
+  const q = useLocalSearchParams<{ id: string; lang?: string; xp: string; streak: string; natural: string; total: string; bonus?: string; words?: string; badges?: string }>();
   const lang = isTargetLang(q.lang) ? q.lang : 'en';
   const scenario = getScenario(q.id, lang);
   const { c, type, radius, fonts, elevation } = useTheme();
   const insets = useSafeAreaInsets();
   const tts = useVoice(scenario?.locale ?? 'en-US');
+
+  // Hatırlatma izni ilk dersten sonra istenir (ROADMAP Faz 5)
+  useEffect(() => { getPrefs().then((p) => syncReminders(p, { ask: true })).catch(() => undefined); }, []);
+
+  const newBadges = (q.badges ?? '').split(',').map(badgeById).filter((b) => !!b);
+  const newWords = Number(q.words ?? 0);
+  const bonus = Number(q.bonus ?? 0);
 
   const tiles: { icon: IconName; bg: string; fg: string; value: string; label: string }[] = [
     { icon: 'bolt', bg: c.secondarySoft, fg: c.onSecondarySoft, value: `+${q.xp} XP`, label: 'Bu provadan' },
@@ -29,7 +40,7 @@ export default function LessonComplete() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg }}>
+    <View style={{ flex: 1, backgroundColor: c.bg, overflow: 'hidden' }}>
       <View style={[styles.blob, { top: -48, left: -48, backgroundColor: c.primarySoft }]} />
       <View style={[styles.blob, { top: 96, right: -32, width: 160, height: 160, backgroundColor: c.secondarySoft }]} />
       <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}>
@@ -54,6 +65,30 @@ export default function LessonComplete() {
             </Card>
           ))}
         </View>
+
+        {bonus > 0 ? (
+          <View style={{ alignItems: 'center' }}>
+            <Pill tone="tertiary" icon="target" iconColor={c.tertiary} label={`Günün meydan okuması: +${bonus} XP bonus`} />
+          </View>
+        ) : null}
+
+        {newBadges.length ? (
+          <Card style={{ gap: 10 }}>
+            <View style={styles.row6}>
+              <Icon name="award" size={18} color={c.tertiary} />
+              <Text style={[type.overline, { color: c.tertiary }]}>{upperTR(newBadges.length > 1 ? 'Yeni rozetler' : 'Yeni rozet')}</Text>
+            </View>
+            {newBadges.map((b) => (
+              <View key={b!.id} style={styles.row6}>
+                <View style={[styles.trophy, { backgroundColor: c.tertiarySoft }]}><Icon name={b!.icon} size={16} color={c.onTertiarySoft} /></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[type.labelLg, { color: c.text }]}>{b!.title}</Text>
+                  <Text style={[type.caption, { color: c.textMuted }]}>{b!.desc}</Text>
+                </View>
+              </View>
+            ))}
+          </Card>
+        ) : null}
 
         {scenario ? (
           <Card style={{ gap: 10 }}>
@@ -86,6 +121,12 @@ export default function LessonComplete() {
               </Text>
             </View>
           </View>
+        ) : null}
+
+        {newWords > 0 ? (
+          <Text onPress={() => router.push('/kelimeler')} accessibilityRole="link" style={[type.label, { color: c.primary, textAlign: 'center', fontFamily: fonts.bold }]}>
+            {newWords} yeni kelime kartı sandığına eklendi · Kelime sandığını aç
+          </Text>
         ) : null}
 
         <View style={{ gap: 8 }}>

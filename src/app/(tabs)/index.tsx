@@ -2,14 +2,17 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChallengeCard } from '@/components/home/ChallengeCard';
 import { DailyGoalCard } from '@/components/home/DailyGoalCard';
 import { ScenarioCard } from '@/components/home/ScenarioCard';
 import { Icon } from '@/components/ui/Icon';
 import { SoftNote, StatPill } from '@/components/ui/Primitives';
 import { learningLang } from '@/data/availability';
 import { getScenarios } from '@/data/scenarios';
+import { CHALLENGE_BONUS_XP, dailyChallenge } from '@/features/engagement/dailyChallenge';
+import { syncReminders } from '@/features/engagement/reminders';
 import { openScenario } from '@/features/lesson/open';
-import { getPrefs, getProfile, getTodayMinutes, type Anxiety, type Prefs, type Profile } from '@/features/progress/db';
+import { getPrefs, getProfile, getTodayMinutes, isChallengeDone, localDay, type Anxiety, type Prefs, type Profile } from '@/features/progress/db';
 import { useTheme } from '@/theme/useTheme';
 
 const FOCUS: Record<Anxiety, string> = {
@@ -25,11 +28,12 @@ export default function PracticeHome() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [minutes, setMinutes] = useState(0);
+  const [challengeDone, setChallengeDone] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       let alive = true;
-      Promise.all([getProfile(), getPrefs(), getTodayMinutes()]).then(([p, pr, m]) => {
+      Promise.all([getProfile(), getPrefs(), getTodayMinutes(), isChallengeDone(localDay())]).then(([p, pr, m, done]) => {
         if (!alive) return;
         if (!pr.onboardedAt) {
           router.replace('/onboarding');
@@ -38,6 +42,8 @@ export default function PracticeHome() {
         setProfile(p);
         setPrefs(pr);
         setMinutes(m);
+        setChallengeDone(done);
+        syncReminders(pr).catch(() => undefined);
       });
       return () => {
         alive = false;
@@ -49,7 +55,10 @@ export default function PracticeHome() {
   const open = openScenario;
   const free = scenarios.filter((s) => !s.isPremium);
   const [feature, ...rest] = free;
-  const locked = scenarios.filter((s) => s.isPremium);
+  // Ana sayfada kısa bir seçki; tamamı Senaryolar sekmesinde
+  const more = rest.slice(0, 3);
+  const locked = scenarios.filter((s) => s.isPremium).slice(0, 1);
+  const challenge = prefs ? dailyChallenge(localDay(), scenarios, prefs.interests) : undefined;
 
   return (
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}>
@@ -75,6 +84,10 @@ export default function PracticeHome() {
         onStart={() => feature && open(feature)}
       />
 
+      {challenge ? (
+        <ChallengeCard scenario={challenge} bonusXp={CHALLENGE_BONUS_XP} done={challengeDone} onAccept={() => open(challenge, { challenge: true })} />
+      ) : null}
+
       <View style={{ gap: 16 }}>
         <View style={styles.sectionHead}>
           <View style={styles.row8}>
@@ -84,7 +97,7 @@ export default function PracticeHome() {
           <Text style={[type.label, { color: c.primary, fontFamily: type.labelLg.fontFamily }]} onPress={() => router.push('/senaryolar')} accessibilityRole="link">Tümü</Text>
         </View>
         {feature ? <ScenarioCard scenario={feature} variant="feature" onPress={() => open(feature)} /> : null}
-        {rest.map((s) => <ScenarioCard key={s.id} scenario={s} variant="compact" onPress={() => open(s)} />)}
+        {more.map((s) => <ScenarioCard key={s.id} scenario={s} variant="compact" onPress={() => open(s)} />)}
         {locked.map((s) => <ScenarioCard key={s.id} scenario={s} variant="locked" onPress={() => open(s)} />)}
       </View>
 

@@ -22,7 +22,7 @@ export function NativeLanguagePicker({ options, value, onChange }: { options: Co
           <Pressable
             key={code}
             accessibilityRole="radio"
-            accessibilityState={{ checked: selected }}
+            aria-checked={selected}
             accessibilityLabel={lang.name}
             onPress={() => onChange(code)}
             style={({ pressed }) => [
@@ -66,7 +66,7 @@ export function TargetLanguagePicker({ options, value, onChange, soon = [], prev
           <Pressable
             key={code}
             accessibilityRole="radio"
-            accessibilityState={{ checked: selected, disabled }}
+            aria-checked={selected} aria-disabled={disabled}
             accessibilityLabel={`${lang.name}, ${lang.endonym}${disabled ? ', yakında' : previewCount ? `, önizleme, ${previewCount} senaryo` : ''}`}
             disabled={disabled}
             onPress={() => onChange(code)}
