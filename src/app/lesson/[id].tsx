@@ -38,6 +38,9 @@ export default function Lesson() {
   const [typeInstead, setTypeInstead] = useState(false);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [streak, setStreak] = useState(0);
+  // Okunuş (zh/ko/ru): varsayılan kapalı; kaygı "telaffuz" seçildiyse açık başlar
+  const [romanChoice, setRomanChoice] = useState<boolean | null>(null);
+  const showRoman = romanChoice ?? prefs?.anxiety === 'pronunciation';
   const startedAt = useRef(Date.now());
 
   const locale = scenario?.locale ?? 'en-US';
@@ -86,6 +89,7 @@ export default function Lesson() {
       xp: XP[r.verdict],
       userText: r.verdict === 'correct' ? undefined : answer,
       suggestion: r.closest,
+      suggestionRoman: r.closest === open.acceptedAnswers[0] ? open.answerRoman : undefined,
       explanation: r.tip ?? (r.verdict === 'correct' ? scenario!.pattern.note : open.why),
     });
     if (r.verdict === 'wrong') addToReview(progressKey(scenario!.id, lang), step!.id, answer, r.closest);
@@ -100,6 +104,7 @@ export default function Lesson() {
       verdict, score: o.correct ? 1 : o.near ? 0.6 : 0.2, xp: XP[verdict],
       userText: o.correct ? undefined : o.text,
       suggestion: best.text,
+      suggestionRoman: best.roman,
       explanation: o.feedback,
     });
   }
@@ -162,6 +167,9 @@ export default function Lesson() {
           speaking={tts.speaking}
           onSpeak={() => tts.speak(step.npcLine, { slow })}
           variant={step.kind === 'choice' ? 'stage' : step.kind === 'speech' ? 'inline' : 'card'}
+          roman={step.npcRoman}
+          showRoman={showRoman}
+          onToggleRoman={() => setRomanChoice(!showRoman)}
         />
 
         {/* Çoktan seçmeli */}
@@ -173,7 +181,7 @@ export default function Lesson() {
             </View>
             <View accessibilityRole="radiogroup" style={{ gap: 10 }}>
               {step.options.map((o, i) => (
-                <OptionCard key={o.text} letter={String.fromCharCode(65 + i)} text={o.text} selected={choice === i} disabled={!!feedback} onPress={() => setChoice(i)} />
+                <OptionCard key={o.text} letter={String.fromCharCode(65 + i)} text={o.text} roman={showRoman ? o.roman : undefined} selected={choice === i} disabled={!!feedback} onPress={() => setChoice(i)} />
               ))}
             </View>
             <Button label="Cevabı Kontrol Et" iconRight="arrowRight" disabled={choice === null} onPress={evaluateChoice} />
@@ -212,7 +220,10 @@ export default function Lesson() {
                     <Chip key={w} label={w} icon="plus" onPress={() => setText((t) => {
                       const cur = t.trim();
                       const add = w.replace(/…$/, '');
-                      const nextText = !cur ? add.charAt(0).toUpperCase() + add.slice(1) : /[.,]$/.test(cur) ? `${cur} ${add}` : `${cur}, ${add}`;
+                      // zh: boşluksuz yazılır; ko: sözcükler boşlukla, virgülsüz eklenir (dokunarak cümle kur)
+                      const nextText = lang === 'zh' ? cur + add
+                        : lang === 'ko' ? (cur ? `${cur} ${add}` : add)
+                        : !cur ? add.charAt(0).toUpperCase() + add.slice(1) : /[.,]$/.test(cur) ? `${cur} ${add}` : `${cur}, ${add}`;
                       return nextText.slice(0, MAX_CHARS);
                     })} />
                   ))}

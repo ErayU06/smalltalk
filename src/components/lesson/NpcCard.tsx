@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { LayoutAnimation, Pressable, StyleSheet, Text, View } from 'react-native';
+import { scriptSafe } from '../../theme/text';
 import type { Hint, Npc } from '../../types/scenario';
 import { useTheme } from '../../theme/useTheme';
 import { NpcAvatar } from '../illustrations/NpcAvatar';
@@ -14,19 +15,31 @@ type Props = {
   /** stage: ortalanmış büyük avatar (çoktan seçmeli) · card: üst satırda avatar (yazma) · inline: yanda avatar (konuşma) */
   variant?: 'stage' | 'card' | 'inline';
   speaking?: boolean;
+  /** zh/ko/ru: repliğin okunuşu; düğmeyle açılıp kapanır */
+  roman?: string;
+  showRoman?: boolean;
+  onToggleRoman?: () => void;
 };
 
 /** Stitch NPC kartı: avatar + diyalog balonu + dinle butonu + açılır Türkçe ipucu. */
-export function NpcCard({ npc, line, hint, onSpeak, variant = 'card', speaking }: Props) {
+export function NpcCard({ npc, line, hint, onSpeak, variant = 'card', speaking, roman, showRoman, onToggleRoman }: Props) {
   const { c, radius, type, elevation } = useTheme();
 
   const bubble = (
     <View style={[styles.bubble, { backgroundColor: variant === 'card' ? c.surfaceLow : c.surface, borderRadius: radius.md },
       variant !== 'card' && { shadowColor: c.shadow, ...elevation.card }]}>
       <View style={styles.lineRow}>
-        <Text style={[type.npc, { color: c.text, flex: 1 }]} accessibilityRole="text">“{line}”</Text>
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={[type.npc, { color: c.text }, scriptSafe(line)]} accessibilityRole="text">“{line}”</Text>
+          {roman && showRoman ? <Text style={[type.body, { color: c.textMuted, fontStyle: 'italic' }]}>{roman}</Text> : null}
+        </View>
         <IconButton icon="speaker" label={speaking ? 'Okunuyor' : 'Sesli dinle'} tone={variant === 'card' ? 'surface' : 'low'} onPress={onSpeak} size={40} />
       </View>
+      {roman && onToggleRoman ? (
+        <Text onPress={onToggleRoman} accessibilityRole="button" style={[type.label, { color: c.primary, fontFamily: type.labelLg.fontFamily, alignSelf: 'flex-start', paddingVertical: 4 }]}>
+          {showRoman ? 'Okunuşu gizle' : 'Okunuşu göster'}
+        </Text>
+      ) : null}
       {hint ? <HintAccordion hint={hint} /> : null}
     </View>
   );

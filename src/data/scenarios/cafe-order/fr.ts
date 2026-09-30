@@ -1,0 +1,77 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+const fr: ScenarioVariant = {
+  locale: 'fr-FR',
+  title: "Paris'te bir kafede sipariş ver",
+  description: "Önce 'Bonjour', sonra kibar sipariş: Paris kafesinde sıra ve ödeme provası.",
+  placeLabel: 'Paris · Kafe',
+  mood: 'Güler yüzlü barista',
+  pattern: { text: "Bonjour, je voudrais un café crème, s'il vous plaît.", note: 'Kibar sipariş kalıbı · A2' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: "Bonjour ! Qu'est-ce que je vous sers ?",
+      hint: { tr: "Önce 'Bonjour' de, sonra kibarca sipariş ver." },
+      prompt: 'Kibarca siparişini ver:',
+      options: [
+        { text: "Bonjour ! Je voudrais un café crème, s'il vous plaît.", correct: true, feedback: "Önce 'Bonjour', sonra 'Je voudrais…': Fransa'da tam doğru sıra." },
+        { text: 'Un café crème.', correct: false, near: true, feedback: "Anlaşılır ama 'Bonjour' demeden sipariş vermek Fransa'da kaba sayılır." },
+        { text: 'Je suis un café, merci.', correct: false, feedback: 'Bu "ben bir kahveyim" demek oldu.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: 'Très bien. Petit ou grand ?',
+      hint: { tr: 'Büyük boy iste.', example: 'Un grand…' },
+      acceptedAnswers: ["Un grand, s'il vous plaît.", "Grand, s'il vous plaît.", 'Je vais prendre un grand.', "Un petit, s'il vous plaît."],
+      keywords: [['grand', 'petit']],
+      wordBank: ['Un grand', "s'il vous plaît", 'Je vais prendre'],
+      why: '"Je vais prendre…" ya da kısaca "Un grand, s\'il vous plaît" doğal.',
+      mistakes: [{ match: '^je veux', tip: '"Je veux" fazla direkt; "Je voudrais…" ya da "Je vais prendre…" dene.' }],
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: 'Sur place ou à emporter ?',
+      hint: { tr: 'Götüreceğini söyle.', example: 'À emporter…' },
+      acceptedAnswers: ["À emporter, s'il vous plaît.", 'Sur place, merci.', 'À emporter, merci.', 'Ce sera à emporter.'],
+      keywords: [['emporter', 'sur place']],
+      wordBank: ['À emporter', 'Sur place', 'merci'],
+      why: '"À emporter" = götürmek üzere, "sur place" = burada.',
+    },
+    {
+      id: 's4',
+      kind: 'text',
+      npcLine: 'Ça fait quatre euros vingt. Vous payez par carte ?',
+      hint: { tr: 'Evet, kartla öde.', example: 'Oui, par carte…' },
+      acceptedAnswers: ["Oui, par carte, s'il vous plaît.", 'Par carte, merci.', 'Oui, je paie par carte.', 'Oui, par carte.'],
+      keywords: [['carte']],
+      wordBank: ['Oui', 'par carte', 'merci'],
+      why: 'Kartla ödemek "par carte" ile söylenir.',
+      mistakes: [{ match: 'avec (la )?carte', tip: 'Kartla ödemek için "par carte" daha doğal.' }],
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: 'Merci, bonne journée !',
+      hint: { tr: 'Teşekkür et ve sen de iyi günler dile.', example: 'Merci, vous aussi…' },
+      acceptedAnswers: ['Merci, vous aussi !', 'Merci, bonne journée à vous aussi !', 'Merci beaucoup, au revoir !', 'Merci, à vous aussi !'],
+      keywords: [['merci'], ['vous aussi', 'a vous', 'au revoir', 'bonne journee']],
+      wordBank: ['Merci', 'vous aussi', 'au revoir'],
+      why: '"Vous aussi" = size de; görevliye "vous" ile hitap edilir.',
+      mistakes: [{ match: 'toi aussi', tip: 'Görevliye "vous" ile hitap edilir: "Vous aussi !"' }],
+    },
+  ],
+  vocab: [
+    { text: 'Je voudrais…', tr: '… isterdim' },
+    { text: 'sur place / à emporter', tr: 'burada / götürmek üzere' },
+    { text: 'un café', tr: "(Fransa'da) espresso" },
+    { text: 'par carte', tr: 'kartla' },
+    { text: 'Bonne journée !', tr: 'İyi günler!' },
+  ],
+  curveballs: ["Désolé, on n'a plus de lait d'avoine. Lait d'amande, ça vous va ?"],
+};
+
+export default fr;

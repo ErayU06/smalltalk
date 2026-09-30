@@ -1,0 +1,86 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+/** Okunuş: Revize Romanizasyon (kılavuz §5). Görevliyle 해요체; 반말 yok. */
+const ko: ScenarioVariant = {
+  locale: 'ko-KR',
+  title: "Seul'de bir kafede amerikano iste",
+  description: 'Sipariş, boy, paket ve puan kartı sorusu: Kore kafesinin klasik akışı.',
+  placeLabel: 'Seul · Kafe',
+  mood: 'Güler yüzlü barista',
+  pattern: { text: '아이스 아메리카노 한 잔 주세요.', roman: 'Aiseu amerikano han jan juseyo.', note: 'Sipariş kalıbı: … 한 잔 주세요 · A1' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: '어서 오세요! 주문하시겠어요?',
+      npcRoman: 'Eoseo oseyo! Jumunhasigesseoyo?',
+      hint: { tr: 'Kibarca sipariş ver.' },
+      prompt: 'Siparişini ver:',
+      options: [
+        { text: '아이스 아메리카노 한 잔 주세요.', roman: 'Aiseu amerikano han jan juseyo.', correct: true, feedback: '"한 잔 + 주세요": Türkçedeki gibi fiil sonda!' },
+        { text: '아이스 아메리카노 줘.', roman: 'Aiseu amerikano jwo.', correct: false, near: true, feedback: 'Anlam doğru ama 반말 (samimi dil); görevliye "주세요" denir.' },
+        { text: '저는 아메리카노예요.', roman: 'Jeoneun amerikanoyeyo.', correct: false, feedback: 'Bu "ben amerikanoyum" demek oldu.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: '사이즈는 어떻게 해 드릴까요?',
+      npcRoman: 'Saijeuneun eotteoke hae deurilkkayo?',
+      hint: { tr: 'Büyük boy iste.', example: '큰 사이즈로…' },
+      acceptedAnswers: ['큰 사이즈로 주세요.', '라지로 주세요.', '작은 사이즈로 주세요.', '큰 걸로 주세요.'],
+      answerRoman: 'Keun saijeuro juseyo.',
+      keywords: [['큰', '라지', '작은', '레귤러']],
+      wordBank: ['큰', '사이즈로', '주세요'],
+      why: '"…로 주세요" = … olarak verin; boy seçiminin doğal kalıbı.',
+      mistakes: [{ match: '줘$', tip: 'Görevliye 반말 değil "주세요" denir.' }],
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: '드시고 가세요? 포장이세요?',
+      npcRoman: 'Deusigo gaseyo? Pojangiseyo?',
+      hint: { tr: 'Götüreceğini (paket) söyle.', example: '포장…' },
+      acceptedAnswers: ['포장이요.', '포장해 주세요.', '먹고 갈게요.', '여기서 먹을게요.'],
+      answerRoman: 'Pojangiyo.',
+      keywords: [['포장', '먹고', '여기서']],
+      wordBank: ['포장이요', '먹고 갈게요'],
+      why: '"포장이요" = paket olsun; kısa cevap gayet doğal.',
+    },
+    {
+      id: 's4',
+      kind: 'choice',
+      npcLine: '적립하시겠어요?',
+      npcRoman: 'Jeongnip hasigesseoyo?',
+      hint: { tr: 'Puan kartın yok; kibarca "gerek yok" de.' },
+      prompt: 'Puan kartı sorusu:',
+      options: [
+        { text: '아니요, 괜찮아요.', roman: 'Aniyo, gwaenchanayo.', correct: true, feedback: 'Kibar bir "hayır, gerek yok".' },
+        { text: '아니.', roman: 'Ani.', correct: false, near: true, feedback: 'Anlam doğru ama 반말; "아니요, 괜찮아요" daha kibar.' },
+        { text: '네, 아메리카노요.', roman: 'Ne, amerikanoyo.', correct: false, feedback: 'Barista puan kartını soruyor; siparişi değil.' },
+      ],
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: '진동벨 울리면 가지러 오세요. 좋은 하루 되세요!',
+      npcRoman: 'Jindongbel ullimyeon gajireo oseyo. Joeun haru doeseyo!',
+      hint: { tr: 'Teşekkür et ve sen de iyi günler dile.', example: '감사합니다…' },
+      acceptedAnswers: ['감사합니다. 좋은 하루 되세요!', '네, 감사합니다!', '고맙습니다, 수고하세요!', '감사합니다!'],
+      answerRoman: 'Gamsahamnida. Joeun haru doeseyo!',
+      keywords: [['감사합니다', '고맙습니다', '감사해요', '고마워요']],
+      wordBank: ['감사합니다', '좋은 하루 되세요'],
+      why: '"수고하세요" Korede çalışanlara söylenen nazik bir veda.',
+    },
+  ],
+  vocab: [
+    { text: '한 잔', roman: 'han jan', tr: 'bir bardak (yerli sayı + 잔)' },
+    { text: '주세요', roman: 'juseyo', tr: '… verir misiniz (lütfen)' },
+    { text: '포장', roman: 'pojang', tr: 'paket (götürmek üzere)' },
+    { text: '진동벨', roman: 'jindongbel', tr: 'titreşimli çağrı cihazı' },
+    { text: '좋은 하루 되세요', roman: 'joeun haru doeseyo', tr: 'İyi günler' },
+  ],
+  curveballs: ['오트 우유가 다 떨어졌는데, 아몬드 우유 괜찮으세요?'],
+};
+
+export default ko;

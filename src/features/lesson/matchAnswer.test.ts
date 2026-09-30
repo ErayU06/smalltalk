@@ -101,6 +101,7 @@ describe('dile duyarlı değerlendirme', () => {
     it('doğru', () => expect(matchAnswer('아이스 아메리카노 한잔 주세요', acc, kw, [], 'ko').verdict).toBe('correct'));
     it('ek düşürmek cezalandırılmaz', () => expect(matchAnswer('아메리카노를 주세요', acc, kw, [], 'ko').verdict).toBe('correct'));
     it('yanlış', () => expect(matchAnswer('화장실 어디예요', acc, kw, [], 'ko').verdict).toBe('wrong'));
+    it('한 잔 ve 한잔 aynı sayılır', () => expect(normalize('한 잔', 'ko')).toBe(normalize('한잔', 'ko')));
     it('bilinen hata: sayma sözcüğü', () => {
       const r = matchAnswer('아메리카노 이 잔 주세요', acc, kw, [{ match: '이잔', tip: '두 잔' }], 'ko');
       expect(r.verdict).toBe('almost');

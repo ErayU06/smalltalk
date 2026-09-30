@@ -1,0 +1,85 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+/** Okunuş: ton işaretli pinyin, 一 için değişmiş ton (kılavuz §5) */
+const zh: ScenarioVariant = {
+  locale: 'zh-CN',
+  title: "Şanghay'da bir kafede latte iste",
+  description: 'Boy seçimi, "burada mı götürmek mi" ve QR ile ödeme provası.',
+  placeLabel: 'Şanghay · Kafe',
+  mood: 'Güler yüzlü barista',
+  pattern: { text: '我要一杯拿铁。', roman: 'Wǒ yào yì bēi nátiě.', note: 'Sipariş kalıbı: 我要 + sayı + 杯 · A1' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: '你好！请问喝点什么？',
+      npcRoman: 'Nǐ hǎo! Qǐngwèn hē diǎn shénme?',
+      hint: { tr: 'Kibarca sipariş ver.' },
+      prompt: 'Siparişini ver:',
+      options: [
+        { text: '你好，我要一杯拿铁，谢谢。', roman: 'Nǐ hǎo, wǒ yào yì bēi nátiě, xièxie.', correct: true, feedback: 'Siparişte "我要…" doğaldır; "一杯" ölçü sözcüğü de doğru.' },
+        { text: '我要一个拿铁。', roman: 'Wǒ yào yí ge nátiě.', correct: false, near: true, feedback: 'Anlaşılır ama içecekte ölçü sözcüğü "杯" olur: 一杯拿铁.' },
+        { text: '我是拿铁。', roman: 'Wǒ shì nátiě.', correct: false, feedback: 'Bu "ben latteyim" demek oldu.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: '要大杯还是中杯？',
+      npcRoman: 'Yào dà bēi háishi zhōng bēi?',
+      hint: { tr: 'Orta boy iste.', example: '中杯…' },
+      acceptedAnswers: ['中杯，谢谢。', '要中杯。', '大杯，谢谢。', '中杯就好。'],
+      answerRoman: 'Zhōng bēi, xièxie.',
+      keywords: [['中杯', '大杯', '小杯']],
+      wordBank: ['中杯', '大杯', '谢谢', '要'],
+      why: 'Kısa cevap yeterli: "中杯，谢谢。"',
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: '在这儿喝还是带走？',
+      npcRoman: 'Zài zhèr hē háishi dàizǒu?',
+      hint: { tr: 'Götüreceğini söyle.', example: '带走…' },
+      acceptedAnswers: ['带走，谢谢。', '带走。', '在这儿喝。', '打包带走。'],
+      answerRoman: 'Dàizǒu, xièxie.',
+      keywords: [['带走', '这儿喝', '打包']],
+      wordBank: ['带走', '在这儿喝', '谢谢'],
+      why: '"带走" = götürmek üzere, "在这儿喝" = burada içeceğim.',
+    },
+    {
+      id: 's4',
+      kind: 'choice',
+      npcLine: '一共三十二块。扫码还是刷卡？',
+      npcRoman: 'Yígòng sānshí’èr kuài. Sǎomǎ háishi shuākǎ?',
+      hint: { tr: 'Telefonla QR okutarak ödeyeceğini söyle.' },
+      prompt: 'Nasıl ödersin?',
+      options: [
+        { text: '扫码，谢谢。', roman: 'Sǎomǎ, xièxie.', correct: true, feedback: "Çin'de QR ile ödeme en yaygın yöntem." },
+        { text: '扫。', roman: 'Sǎo.', correct: false, near: true, feedback: 'Anlaşılır ama çok kısa; "扫码，谢谢" daha doğal.' },
+        { text: '我要两杯。', roman: 'Wǒ yào liǎng bēi.', correct: false, feedback: 'Barista ödeme yöntemini soruyor; yeni sipariş değil.' },
+      ],
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: '好的，您的拿铁。慢走！',
+      npcRoman: 'Hǎo de, nín de nátiě. Màn zǒu!',
+      hint: { tr: 'Teşekkür et ve vedalaş.', example: '谢谢，再见…' },
+      acceptedAnswers: ['谢谢，再见！', '谢谢！', '好的，谢谢，再见。', '谢谢你，拜拜！'],
+      answerRoman: 'Xièxie, zàijiàn!',
+      keywords: [['谢谢']],
+      wordBank: ['谢谢', '再见', '拜拜'],
+      why: '"慢走" uğurlama sözü; "谢谢，再见" en doğal cevap.',
+    },
+  ],
+  vocab: [
+    { text: '一杯', roman: 'yì bēi', tr: 'bir bardak (ölçü sözcüğü)' },
+    { text: '带走', roman: 'dàizǒu', tr: 'götürmek üzere' },
+    { text: '中杯', roman: 'zhōng bēi', tr: 'orta boy' },
+    { text: '扫码', roman: 'sǎomǎ', tr: 'QR okutmak' },
+    { text: '慢走', roman: 'màn zǒu', tr: '(uğurlarken) güle güle' },
+  ],
+  curveballs: ['燕麦奶没有了，换杏仁奶可以吗？'],
+};
+
+export default zh;

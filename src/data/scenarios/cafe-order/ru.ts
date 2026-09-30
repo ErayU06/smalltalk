@@ -1,0 +1,87 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+/** Okunuş: Türkçe okunuşa göre, vurgulu hece işaretli (kılavuz §5) */
+const ru: ScenarioVariant = {
+  locale: 'ru-RU',
+  title: "Moskova'da kahve sipariş et",
+  description: 'Kibarca sipariş, boy seçimi ve kasadaki kısa sorular provası.',
+  placeLabel: 'Moskova · Kafe',
+  mood: 'Güler yüzlü barista',
+  pattern: { text: 'Можно капучино, пожалуйста?', roman: 'Mójna kapuçíno, pajálusta?', note: 'Kibar rica kalıbı · A2' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: 'Здравствуйте! Что будете заказывать?',
+      npcRoman: 'Zdrástvuyte! Şto búdete zakázıvat?',
+      hint: { tr: 'Selam ver ve kibarca sipariş et.' },
+      prompt: 'Kibarca siparişini ver:',
+      options: [
+        { text: 'Здравствуйте! Можно капучино, пожалуйста?', roman: 'Zdrástvuyte! Mójna kapuçíno, pajálusta?', correct: true, feedback: '"Можно…, пожалуйста?" kibar ve çok doğal.' },
+        { text: 'Капучино.', roman: 'Kapuçíno.', correct: false, near: true, feedback: 'Anlaşılır ama selam ve "пожалуйста" olmadan kuru kalıyor.' },
+        { text: 'Я капучино.', roman: 'Ya kapuçíno.', correct: false, feedback: 'Bu "ben kapuçinoyum" demek oldu.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: 'Какой размер: маленький или большой?',
+      npcRoman: 'Kakóy razmér: málenkiy íli bolşóy?',
+      hint: { tr: 'Büyük boy iste.', example: 'Большой…' },
+      acceptedAnswers: ['Большой, пожалуйста.', 'Давайте большой.', 'Большой, спасибо.', 'Маленький, пожалуйста.'],
+      answerRoman: 'Bolşóy, pajálusta.',
+      keywords: [['большой', 'маленький', 'средний']],
+      wordBank: ['Большой', 'пожалуйста', 'Давайте'],
+      why: 'Kısa cevap yeterli ama "пожалуйста" eklemek kibar.',
+      mistakes: [{ match: '^(большой|маленький|средний)$', tip: 'Kısa cevaba "пожалуйста" eklemek Rusçada kibarlığın anahtarı.' }],
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: 'Здесь или с собой?',
+      npcRoman: 'Zdes íli s sabóy?',
+      hint: { tr: 'Götüreceğini söyle.', example: 'С собой…' },
+      acceptedAnswers: ['С собой, пожалуйста.', 'Здесь, пожалуйста.', 'С собой.', 'Буду здесь.'],
+      answerRoman: 'S sabóy, pajálusta.',
+      keywords: [['собой', 'здесь']],
+      wordBank: ['С собой', 'Здесь', 'пожалуйста'],
+      why: '"С собой" = götürmek üzere, "здесь" = burada.',
+    },
+    {
+      id: 's4',
+      kind: 'choice',
+      npcLine: 'Пакет нужен?',
+      npcRoman: 'Pakét nújen?',
+      hint: { tr: 'Poşet istemediğini kibarca söyle.' },
+      prompt: 'Poşet istemiyorsun:',
+      options: [
+        { text: 'Нет, спасибо.', roman: 'Net, spasíba.', correct: true, feedback: 'Kısa ve kibar; tam doğru.' },
+        { text: 'Не надо.', roman: 'Ne náda.', correct: false, near: true, feedback: 'Anlaşılır ama biraz kuru; "Нет, спасибо" daha nazik.' },
+        { text: 'Да, большой капучино.', roman: 'Da, bolşóy kapuçíno.', correct: false, feedback: 'Barista poşet soruyor; sipariş zaten verildi.' },
+      ],
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: 'Ваш капучино. Хорошего дня!',
+      npcRoman: 'Vaş kapuçíno. Haróşeva dnya!',
+      hint: { tr: 'Teşekkür et, sen de iyi günler dile.', example: 'Спасибо, и вам…' },
+      acceptedAnswers: ['Спасибо, и вам тоже!', 'Спасибо, и вам!', 'Спасибо большое, до свидания!', 'Спасибо, вам тоже хорошего дня!'],
+      answerRoman: 'Spasíba, i vam tóje!',
+      keywords: [['спасибо'], ['вам', 'свидания']],
+      wordBank: ['Спасибо', 'и вам тоже', 'до свидания'],
+      why: '"И вам тоже" = size de.',
+      mistakes: [{ match: 'и тебе', tip: 'Görevliye "вы" ile hitap edilir: "И вам тоже!"' }],
+    },
+  ],
+  vocab: [
+    { text: 'Здравствуйте', roman: 'Zdrástvuyte', tr: 'Merhaba (resmî)' },
+    { text: 'Можно…?', roman: 'Mójna…?', tr: '… alabilir miyim?' },
+    { text: 'с собой', roman: 's sabóy', tr: 'götürmek üzere' },
+    { text: 'Пакет нужен?', roman: 'Pakét nújen?', tr: 'Poşet ister misiniz?' },
+    { text: 'Хорошего дня!', roman: 'Haróşeva dnya!', tr: 'İyi günler!' },
+  ],
+  curveballs: ['Овсяного молока нет. Можно миндальное?'],
+};
+
+export default ru;

@@ -39,11 +39,13 @@ const CONTRACTIONS: Record<string, string> = {
 /** Konuşma tanıma sayıları rakam ya da yazı olarak döndürebilir; ikisini de rakama çevir. */
 const NUMBERS: Record<TargetLang, Record<string, string>> = {
   en: { one: '1', two: '2', three: '3', four: '4', five: '5', six: '6', seven: '7', eight: '8', nine: '9', ten: '10', twelve: '12', fifteen: '15', twenty: '20', thirty: '30' },
-  de: { eins: '1', ein: '1', eine: '1', zwei: '2', drei: '3', vier: '4', fuenf: '5', sechs: '6', sieben: '7', acht: '8', neun: '9', zehn: '10', zwoelf: '12', zwanzig: '20', dreissig: '30' },
-  fr: { un: '1', une: '1', deux: '2', trois: '3', quatre: '4', cinq: '5', six: '6', sept: '7', huit: '8', neuf: '9', dix: '10', douze: '12', vingt: '20', trente: '30' },
+  // de/fr: ein/eine/un/une artikeldir, sayıya çevrilmez ("ein Kaffee" hatası yakalanabilsin)
+  de: { eins: '1', zwei: '2', drei: '3', vier: '4', fuenf: '5', sechs: '6', sieben: '7', acht: '8', neun: '9', zehn: '10', zwoelf: '12', zwanzig: '20', dreissig: '30' },
+  fr: { deux: '2', trois: '3', quatre: '4', cinq: '5', six: '6', sept: '7', huit: '8', neuf: '9', dix: '10', douze: '12', vingt: '20', trente: '30' },
   ru: { один: '1', одна: '1', одно: '1', два: '2', две: '2', три: '3', четыре: '4', пять: '5', шесть: '6', семь: '7', восемь: '8', девять: '9', десять: '10', двенадцать: '12', двадцать: '20', тридцать: '30' },
-  // zh/ko: karakter bazlı; sadece yaygın sayma biçimleri
+  // zh: karakter bazlı
   zh: { 两: '2', 一: '1', 二: '2', 三: '3', 四: '4', 五: '5', 六: '6', 七: '7', 八: '8', 九: '9', 十: '10' },
+  // ko: yalnızca sayma sözcüğünden önce (한 잔 / 한잔 → 1잔), bkz. normalize
   ko: { 한: '1', 두: '2', 세: '3', 네: '4', 다섯: '5' },
 };
 
@@ -72,8 +74,8 @@ export function normalize(input: string, lang: TargetLang = 'en'): string {
     return [...s.replace(/\s+/g, '')].map((ch) => NUMBERS.zh[ch] ?? ch).join('');
   }
   if (lang === 'ko') {
-    const words = s.split(/\s+/).filter(Boolean).map((w) => NUMBERS.ko[w] ?? w);
-    return words.join('');
+    const counted = s.replace(/(다섯|한|두|세|네)(?=\s*(잔|개|명|장|병|시|번|분))/g, (w) => NUMBERS.ko[w]);
+    return counted.replace(/\s+/g, '');
   }
   const nums = NUMBERS[lang];
   return s

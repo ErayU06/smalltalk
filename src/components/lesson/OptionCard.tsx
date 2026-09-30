@@ -1,11 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { scriptSafe } from '../../theme/text';
 import { useTheme } from '../../theme/useTheme';
 import { Icon } from '../ui/Icon';
 
-type Props = { letter: string; text: string; selected: boolean; disabled?: boolean; onPress: () => void };
+type Props = { letter: string; text: string; roman?: string; selected: boolean; disabled?: boolean; onPress: () => void };
 
 /** Stitch seçenek kartı: harf rozeti + metin + sağda onay dairesi. Seçili: açık mercan zemin. */
-export function OptionCard({ letter, text, selected, disabled, onPress }: Props) {
+export function OptionCard({ letter, text, roman, selected, disabled, onPress }: Props) {
   const { c, radius, type, elevation } = useTheme();
   return (
     <Pressable
@@ -24,7 +25,10 @@ export function OptionCard({ letter, text, selected, disabled, onPress }: Props)
         <View style={[styles.badge, { backgroundColor: selected ? c.buttonGradient[0] : c.surfaceContainer }]}>
           <Text style={[type.labelLg, { color: selected ? c.onButton : c.text }]}>{letter}</Text>
         </View>
-        <Text style={[type.body, { color: c.text, fontFamily: type.label.fontFamily, flex: 1 }]}>“{text}”</Text>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={[type.body, { color: c.text, fontFamily: type.label.fontFamily }, scriptSafe(text)]}>“{text}”</Text>
+          {roman ? <Text style={[type.caption, { color: c.textMuted, fontStyle: 'italic' }]}>{roman}</Text> : null}
+        </View>
       </View>
       <View style={[styles.check, { backgroundColor: selected ? c.buttonGradient[0] : c.surfaceHigh }]}>
         {selected ? <Icon name="check" size={14} color={c.onButton} strokeWidth={3.2} /> : null}

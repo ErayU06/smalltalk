@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Verdict } from '../../features/lesson/matchAnswer';
-import { upperTR } from '../../theme/text';
+import { scriptSafe, upperTR } from '../../theme/text';
 import { useTheme } from '../../theme/useTheme';
 import { Button } from '../ui/Button';
 import { Icon, type IconName } from '../ui/Icon';
@@ -15,6 +15,8 @@ export type FeedbackContent = {
   xp: number;
   userText?: string;
   suggestion?: string;
+  /** zh/ko/ru: önerinin okunuşu */
+  suggestionRoman?: string;
   explanation?: string;
 };
 
@@ -27,7 +29,7 @@ type Props = FeedbackContent & {
 };
 
 /** Stitch alt paneli: 3 durum, asla kırmızı. Başlık bloğu → açıklama kartları → duruma göre ana buton. */
-export function FeedbackSheet({ verdict, score, xp, userText, suggestion, explanation, bottomInset, onContinue, onRetry, onListen, onSave }: Props) {
+export function FeedbackSheet({ verdict, score, xp, userText, suggestion, suggestionRoman, explanation, bottomInset, onContinue, onRetry, onListen, onSave }: Props) {
   const { c, radius, type, fonts } = useTheme();
   const [slide] = useState(() => new Animated.Value(1));
 
@@ -83,7 +85,7 @@ export function FeedbackSheet({ verdict, score, xp, userText, suggestion, explan
             {userText ? (
               <View style={[styles.cmp, { backgroundColor: c.surface, borderRadius: radius.sm }]}>
                 <Text style={[type.caption, { color: c.textMuted }]}>Senin cümlen</Text>
-                <Text style={[type.body, { color: c.text, fontFamily: fonts.semibold }]}>“{userText}”</Text>
+                <Text style={[type.body, { color: c.text, fontFamily: fonts.semibold }, scriptSafe(userText)]}>“{userText}”</Text>
               </View>
             ) : null}
             {userText && suggestion ? <View style={{ alignSelf: 'center' }}><Icon name="arrowDown" size={18} color={c.tertiary} /></View> : null}
@@ -97,7 +99,8 @@ export function FeedbackSheet({ verdict, score, xp, userText, suggestion, explan
                     </Pressable>
                   ) : null}
                 </View>
-                <Text style={[type.bodyLg, { color: c.text, fontFamily: fonts.bold }]}>“{suggestion}”</Text>
+                <Text style={[type.bodyLg, { color: c.text, fontFamily: fonts.bold }, scriptSafe(suggestion)]}>“{suggestion}”</Text>
+                {suggestionRoman ? <Text style={[type.caption, { color: c.textMuted, fontStyle: 'italic' }]}>{suggestionRoman}</Text> : null}
               </View>
             ) : null}
           </View>

@@ -1,0 +1,76 @@
+import type { ScenarioVariant } from '../../../types/scenario';
+
+const de: ScenarioVariant = {
+  locale: 'de-DE',
+  title: "Berlin'de kahve sipariş et",
+  description: 'Baristaya kibarca sipariş verme, süt ve ödeme sorularına cevap provası.',
+  placeLabel: 'Berlin · Kafe',
+  mood: 'Güler yüzlü barista',
+  pattern: { text: 'Ich hätte gern einen Cappuccino, bitte.', note: 'Kibar sipariş kalıbı · A2' },
+  steps: [
+    {
+      id: 's1',
+      kind: 'choice',
+      npcLine: "Hallo! Was darf's sein?",
+      hint: { tr: 'Kibarca siparişini ver.' },
+      prompt: 'Kibarca siparişini ver:',
+      options: [
+        { text: 'Ich hätte gern einen Cappuccino, bitte.', correct: true, feedback: '"Ich hätte gern…" Almancada en kibar sipariş kalıbı.' },
+        { text: 'Ich will einen Cappuccino.', correct: false, near: true, feedback: '"Ich will…" fazla direkt duyulur; "Ich hätte gern…" ya da "Ich möchte…" dene.' },
+        { text: 'Ich bin ein Cappuccino.', correct: false, feedback: 'Bu "ben bir kapuçinoyum" demek oldu.' },
+      ],
+    },
+    {
+      id: 's2',
+      kind: 'text',
+      npcLine: 'Gern. Mit Hafermilch oder normaler Milch?',
+      hint: { tr: 'Yulaf sütü iste.', example: 'Mit Hafermilch…' },
+      acceptedAnswers: ['Mit Hafermilch, bitte.', 'Hafermilch, bitte.', 'Gern mit Hafermilch.', 'Mit Hafermilch, danke.'],
+      keywords: [['hafermilch', 'hafer']],
+      wordBank: ['Mit', 'Hafermilch', 'bitte', 'gern'],
+      why: 'Tercih söylerken kısa cevap yeterli: "Mit Hafermilch, bitte."',
+    },
+    {
+      id: 's3',
+      kind: 'speech',
+      npcLine: 'Zum Hiertrinken oder zum Mitnehmen?',
+      hint: { tr: 'Götüreceğini söyle.', example: 'Zum Mitnehmen…' },
+      acceptedAnswers: ['Zum Mitnehmen, bitte.', 'Zum Hiertrinken, bitte.', 'Mitnehmen, bitte.', 'Für hier, bitte.'],
+      keywords: [['mitnehmen', 'hiertrinken', 'hier']],
+      wordBank: ['Zum Mitnehmen', 'Zum Hiertrinken', 'bitte'],
+      why: '"Zum Mitnehmen" = götürmek üzere; kısa cevap gayet doğal.',
+    },
+    {
+      id: 's4',
+      kind: 'text',
+      npcLine: 'Das macht vier achtzig. Bar oder mit Karte?',
+      hint: { tr: 'Kartla ödeyeceğini söyle.', example: 'Mit Karte…' },
+      acceptedAnswers: ['Mit Karte, bitte.', 'Mit Karte.', 'Ich zahle mit Karte.', 'Karte, bitte.'],
+      keywords: [['karte']],
+      wordBank: ['Mit Karte', 'bitte', 'Ich zahle'],
+      why: 'Almanyada "Mit Karte, bitte." kasada en sık duyulan cümle.',
+      mistakes: [{ match: 'dann ich zahle', tip: 'Almancada fiil ikinci sırada: "Dann zahle ich mit Karte."' }],
+    },
+    {
+      id: 's5',
+      kind: 'speech',
+      npcLine: 'Danke! Schönen Tag noch!',
+      hint: { tr: 'Teşekkür et ve sen de iyi günler dile.', example: 'Danke, Ihnen auch…' },
+      acceptedAnswers: ['Danke, Ihnen auch!', 'Danke, gleichfalls!', 'Vielen Dank, Ihnen auch!', 'Danke schön, gleichfalls!'],
+      keywords: [['danke'], ['ihnen auch', 'gleichfalls', 'auch']],
+      wordBank: ['Danke', 'Ihnen auch', 'gleichfalls'],
+      why: '"Gleichfalls" ya da "Ihnen auch" = size de.',
+      mistakes: [{ match: 'dir auch', tip: 'Görevliye "Sie" ile hitap edilir: "Ihnen auch!"' }],
+    },
+  ],
+  vocab: [
+    { text: 'Ich hätte gern…', tr: '… isterdim' },
+    { text: 'zum Mitnehmen', tr: 'götürmek üzere' },
+    { text: 'die Hafermilch', tr: 'yulaf sütü' },
+    { text: 'Mit Karte, bitte.', tr: 'Kartla, lütfen.' },
+    { text: 'Schönen Tag noch!', tr: 'İyi günler!' },
+  ],
+  curveballs: ['Die Hafermilch ist leider aus. Ist Mandelmilch okay?'],
+};
+
+export default de;
