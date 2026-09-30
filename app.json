@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "smalltalk",
+    "name": "SmallTalk",
     "slug": "smalltalk",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,7 +34,18 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Konuşma pratiği yapabilmen için mikrofona erişim gerekiyor.",
+          "speechRecognitionPermission": "Söylediklerini metne çevirip değerlendirebilmek için konuşma tanıma izni gerekiyor.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
+        }
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,121 +1,102 @@
-import { SymbolView } from 'expo-symbols';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DailyGoalCard } from '@/components/home/DailyGoalCard';
+import { ScenarioCard } from '@/components/home/ScenarioCard';
+import { Icon } from '@/components/ui/Icon';
+import { SoftNote, StatPill } from '@/components/ui/Primitives';
+import { scenarios } from '@/data/scenarios';
+import { getPrefs, getProfile, getTodayMinutes, type Anxiety, type Prefs, type Profile } from '@/features/progress/db';
+import { useTheme } from '@/theme/useTheme';
+import type { Scenario } from '@/types/scenario';
 
-import { ProgressBar } from '@/components/progress-bar';
-import { ScenarioCard } from '@/components/scenario-card';
-import { TabScreen } from '@/components/tab-screen';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
-import { profile, progress } from '@/data/progress';
-import { Levels, scenarios, type Level } from '@/data/scenarios';
-import { useTheme } from '@/hooks/use-theme';
+const FOCUS: Record<Anxiety, string> = {
+  panic: 'Sakin kalıp kısa cevap vermek',
+  blank: 'Sohbeti bir soruyla sürdürmek',
+  pronunciation: 'Yavaş ve net konuşmak',
+  fast: 'Dinleyip anlamak',
+};
 
-type Filter = Level | 'Tümü';
+export default function PracticeHome() {
+  const { c, type } = useTheme();
+  const insets = useSafeAreaInsets();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [minutes, setMinutes] = useState(0);
 
-export default function PracticeScreen() {
-  const theme = useTheme();
-  const [filter, setFilter] = useState<Filter>('Tümü');
-  const visible = filter === 'Tümü' ? scenarios : scenarios.filter((s) => s.level === filter);
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      Promise.all([getProfile(), getPrefs(), getTodayMinutes()]).then(([p, pr, m]) => {
+        if (!alive) return;
+        if (!pr.onboardedAt) {
+          router.replace('/onboarding');
+          return;
+        }
+        setProfile(p);
+        setPrefs(pr);
+        setMinutes(m);
+      });
+      return () => {
+        alive = false;
+      };
+    }, []),
+  );
+
+  const open = (s: Scenario) => (s.isPremium ? router.push('/paywall') : router.push({ pathname: '/lesson/[id]', params: { id: s.id } }));
+  const free = scenarios.filter((s) => !s.isPremium);
+  const [feature, ...rest] = free;
+  const locked = scenarios.filter((s) => s.isPremium);
 
   return (
-    <TabScreen title="Pratik" subtitle={`Merhaba ${profile.name}, bugün ne konuşalım?`}>
-      <ThemedView type="backgroundElement" style={styles.goalCard}>
-        <View style={styles.goalHeader}>
-          <View style={styles.goalText}>
-            <ThemedText type="smallBold">Günlük hedef</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {progress.todayMinutes} / {profile.dailyGoalMinutes} dakika
-            </ThemedText>
-          </View>
-          <View style={styles.streak} accessibilityLabel={`${progress.streakDays} günlük seri`}>
-            <SymbolView
-              name={{
-                ios: 'flame.fill',
-                android: 'local_fire_department',
-                web: 'local_fire_department',
-              }}
-              tintColor={theme.warning}
-              size={18}
-            />
-            <ThemedText type="smallBold">{progress.streakDays} gün</ThemedText>
+    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}>
+      <View style={styles.header}>
+        <View style={styles.brand}>
+          <View style={[styles.logo, { backgroundColor: c.brand }]}><Icon name="chat" size={22} color="#FFFFFF" fill="#FFFFFF" /></View>
+          <View>
+            <Text style={[type.headlineLg, { color: c.text, fontFamily: type.headlineXl.fontFamily, lineHeight: 26 }]}>SmallTalk</Text>
+            <Text style={[type.caption, { color: c.textMuted }]}>Konuşma Cesareti</Text>
           </View>
         </View>
-        <ProgressBar
-          value={progress.todayMinutes / profile.dailyGoalMinutes}
-          label="Günlük hedef ilerlemesi"
-        />
-      </ThemedView>
-
-      <View style={styles.section}>
-        <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionTitle}>
-          SENARYOLAR
-        </ThemedText>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chips}>
-          {(['Tümü', ...Levels] as Filter[]).map((option) => {
-            const selected = option === filter;
-            return (
-              <Pressable
-                key={option}
-                onPress={() => setFilter(option)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                style={[
-                  styles.chip,
-                  { backgroundColor: selected ? theme.accent : theme.backgroundElement },
-                ]}>
-                <ThemedText
-                  type="small"
-                  style={{ color: selected ? theme.onAccent : theme.text }}>
-                  {option}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-        {visible.map((scenario) => (
-          <ScenarioCard key={scenario.id} scenario={scenario} />
-        ))}
+        <View style={styles.stats}>
+          <StatPill kind="streak" value={`${profile?.streak ?? 0} Gün`} />
+          <StatPill kind="xp" value={`${profile?.total_xp ?? 0} XP`} />
+        </View>
       </View>
-    </TabScreen>
+
+      <DailyGoalCard
+        doneMinutes={minutes}
+        goalMinutes={prefs?.dailyMinutes ?? 5}
+        focus={prefs?.anxiety ? FOCUS[prefs.anxiety] : 'Kibarca rica etmek'}
+        sceneCount={free.length}
+        onStart={() => feature && open(feature)}
+      />
+
+      <View style={{ gap: 16 }}>
+        <View style={styles.sectionHead}>
+          <View style={styles.row8}>
+            <Icon name="compass" size={22} color={c.primary} />
+            <Text style={[type.headlineLg, { fontSize: 20, color: c.text }]} accessibilityRole="header">Günlük Yaşam Senaryoları</Text>
+          </View>
+          <Text style={[type.label, { color: c.primary, fontFamily: type.labelLg.fontFamily }]} onPress={() => router.push('/senaryolar')} accessibilityRole="link">Tümü</Text>
+        </View>
+        {feature ? <ScenarioCard scenario={feature} variant="feature" onPress={() => open(feature)} /> : null}
+        {rest.map((s) => <ScenarioCard key={s.id} scenario={s} variant="compact" onPress={() => open(s)} />)}
+        {locked.map((s) => <ScenarioCard key={s.id} scenario={s} variant="locked" onPress={() => open(s)} />)}
+      </View>
+
+      <SoftNote tone="tint" title="Unutma: Hata yapmak serbest!" text="SmallTalk seni asla yargılamaz; sadece dinler ve cesaret verir." />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  goalCard: {
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-    gap: Spacing.three,
-  },
-  goalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  goalText: {
-    flex: 1,
-  },
-  streak: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  sectionTitle: {
-    letterSpacing: 0.5,
-  },
-  chips: {
-    gap: Spacing.two,
-    paddingBottom: Spacing.one,
-  },
-  chip: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: 999,
-  },
+  content: { paddingHorizontal: 20, paddingBottom: 32, gap: 24 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  logo: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  stats: { flexDirection: 'row', gap: 6 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  row8: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
 });
