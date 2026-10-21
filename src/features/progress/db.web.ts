@@ -25,7 +25,9 @@ type Store = {
   challenges: { day: string; scenario_id: string }[];
 };
 
-const KEY = 'smalltalk.mock-db.v1';
+const KEY = 'talkwell.mock-db.v1';
+/** Yeniden adlandırmadan önceki anahtar: tarayıcıdaki test ilerlemesi bir kez taşınır */
+const LEGACY_KEY = 'smalltalk.mock-db.v1';
 
 const fresh = (): Store => ({
   profile: { total_xp: 0, streak: 0, last_active_day: null },
@@ -45,7 +47,7 @@ let memory: Store | null = null;
 function load(): Store {
   if (memory) return memory;
   try {
-    const raw = globalThis.localStorage?.getItem(KEY);
+    const raw = globalThis.localStorage?.getItem(KEY) ?? globalThis.localStorage?.getItem(LEGACY_KEY);
     const saved = raw ? { ...fresh(), ...(JSON.parse(raw) as Store) } : fresh();
     // db.ts'deki göç 3 ile aynı: eski senaryo kimlikleri dil bazlı anahtara
     saved.lessons = saved.lessons.map((l) => ({ ...l, scenario_id: migrateId(l.scenario_id) }));

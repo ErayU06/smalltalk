@@ -42,6 +42,6 @@ example
 /ios
 /android
 
-# SmallTalk: üretim betiklerinin geçici dosyaları ve ham görseller (yedeği ayrıca tutulur)
+# Talkwell: üretim betiklerinin geçici dosyaları ve ham görseller (yedeği ayrıca tutulur)
 scripts/.samples/
 assets/images/**/raw/

@@ -66,7 +66,7 @@ export default function PracticeHome() {
         <View style={styles.brand}>
           <View style={[styles.logo, { backgroundColor: c.brand }]}><Icon name="chat" size={22} color="#FFFFFF" fill="#FFFFFF" /></View>
           <View>
-            <Text style={[type.headlineLg, { color: c.text, fontFamily: type.headlineXl.fontFamily, lineHeight: 26 }]}>SmallTalk</Text>
+            <Text style={[type.headlineLg, { color: c.text, fontFamily: type.headlineXl.fontFamily, lineHeight: 26 }]}>Talkwell</Text>
             <Text style={[type.caption, { color: c.textMuted }]}>Konuşma Cesareti</Text>
           </View>
         </View>
@@ -101,7 +101,7 @@ export default function PracticeHome() {
         {locked.map((s) => <ScenarioCard key={s.id} scenario={s} variant="locked" onPress={() => open(s)} />)}
       </View>
 
-      <SoftNote tone="tint" title="Unutma: Hata yapmak serbest!" text="SmallTalk seni asla yargılamaz; sadece dinler ve cesaret verir." />
+      <SoftNote tone="tint" title="Unutma: Hata yapmak serbest!" text="Talkwell seni asla yargılamaz; sadece dinler ve cesaret verir." />
     </ScrollView>
   );
 }

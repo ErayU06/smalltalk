@@ -1,5 +1,7 @@
 # Tasarım kaynakları
 
+> Uygulamanın adı SmallTalk iken hazırlandılar; Stitch dışa aktarımlarında ve ekran görüntülerinde eski ad geçer. Güncel ad **Talkwell**.
+
 | Dosya | Ne |
 |---|---|
 | `DESIGN.md` | Stitch'in tasarım sistemi (renkler, tipografi, bileşen tarifleri) |

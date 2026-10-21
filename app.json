@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "SmallTalk",
-    "slug": "smalltalk",
+    "name": "Talkwell",
+    "slug": "talkwell",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "smalltalk",
+    "scheme": "talkwell",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.smalltalk"
+      "bundleIdentifier": "com.erayulusoy.talkwell"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.smalltalk"
+      "package": "com.erayulusoy.talkwell"
     },
     "web": {
       "output": "static",

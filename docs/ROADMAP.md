@@ -1,4 +1,4 @@
-# SmallTalk yol haritası
+# Talkwell yol haritası
 
 Claude Code bu dosyayla çalışır. Her faz kendi dalında yapılır (`faz-1-ses` gibi), bitince `main`'e birleştirilir.
 
@@ -25,7 +25,8 @@ Claude Code bu dosyayla çalışır. Her faz kendi dalında yapılır (`faz-1-se
 - [ ] 🧑 Ücretsiz Expo hesabı, `npx eas-cli@latest login`
 - [ ] 🤖 `npx expo-doctor`, `npx expo install --fix`
 - [ ] 🤖 `eas.json`: `development` (dev client), `preview` (APK), `production`
-- [ ] 🤖 `app.json`: `com.anonymous.smalltalk` → gerçek paket adı (ör. `com.erayulusoy.smalltalk`), `expo-dev-client`
+- [x] 🤖 `app.json`: gerçek paket adı `com.erayulusoy.talkwell` (iOS ve Android)
+- [ ] 🤖 `npx expo install expo-dev-client`
 - [ ] 🤖 İlk geliştirme derlemesi (`npm run android` ya da `eas build --profile development --platform android`)
 - [ ] 🧑 `/cihaz-testi` listesini telefonda uygula
 

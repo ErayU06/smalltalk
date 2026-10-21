@@ -1,4 +1,4 @@
-# SmallTalk
+# Talkwell
 
 Duolingo tarzı, günlük alışkanlık odaklı "small talk" pratiği uygulaması. Arayüz Türkçe, pratik dili
 İngilizce. Kafede sipariş, yol sorma, hocadan ek süre isteme gibi kısa senaryolar; hata asla

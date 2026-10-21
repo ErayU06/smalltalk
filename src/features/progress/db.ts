@@ -76,7 +76,7 @@ async function migrate(db: SQLite.SQLiteDatabase) {
 export function getDb() {
   if (!dbPromise) {
     dbPromise = (async () => {
-      const db = await SQLite.openDatabaseAsync('smalltalk.db');
+      const db = await SQLite.openDatabaseAsync('talkwell.db');
       await db.execAsync('PRAGMA journal_mode = WAL;');
       await migrate(db);
       return db;

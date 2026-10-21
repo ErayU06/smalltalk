@@ -16,7 +16,7 @@ export default function ProfileTab() {
         <Text style={[type.body, { color: c.textMuted }]}>Dil, günlük hedef ve ilgi alanlarını yeniden seçebilirsin.</Text>
         <Button label="Tercihleri düzenle" variant="soft" shape="rounded" icon="tune" onPress={() => router.push('/onboarding')} />
       </Card>
-      <Button label="SmallTalk Pro" icon="sparkle" onPress={() => router.push('/paywall')} />
+      <Button label="Talkwell Pro" icon="sparkle" onPress={() => router.push('/paywall')} />
     </ScrollView>
   );
 }

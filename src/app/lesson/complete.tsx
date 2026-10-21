@@ -98,7 +98,7 @@ export default function LessonComplete() {
                 <Text style={[type.overline, { color: c.tertiary }]}>{upperTR('Yeni kalıp rozeti')}</Text>
               </View>
               <IconButton icon="share" label="Kalıbı paylaş" tone="low" size={36}
-                onPress={() => Share.share({ message: `SmallTalk'ta yeni kalıp öğrendim: "${scenario.pattern.text}"` })} />
+                onPress={() => Share.share({ message: `Talkwell'de yeni kalıp öğrendim: "${scenario.pattern.text}"` })} />
             </View>
             <View style={[styles.between, { backgroundColor: c.surfaceLow, borderRadius: radius.sm, padding: 12 }]}>
               <View style={{ flex: 1 }}>

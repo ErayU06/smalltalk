@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# SmallTalk – Claude Code proje talimatları
+# Talkwell – Claude Code proje talimatları
 
 > **Yol haritası:** `docs/ROADMAP.md` · **İçerik kılavuzu:** `docs/ICERIK-KILAVUZU.md` · **Tasarım kaynakları:** `docs/design/`
 > **Komutlar:** `/siradaki` · `/faz <n>` · `/senaryo-ekle <konu>` · `/dil-ekle <kod>` · `/ses-uret` · `/gorsel` · `/cihaz-testi`

@@ -17,7 +17,7 @@ export function PaywallHero() {
         <View style={s.iconDot} />
       </View>
 
-      <Text style={s.title} accessibilityRole="header">SmallTalk Pro ile Konuşma Sınırlarını Kaldır</Text>
+      <Text style={s.title} accessibilityRole="header">Talkwell Pro ile Konuşma Sınırlarını Kaldır</Text>
       <Text style={s.subtitle}>Asla yargılanmayacağın, dilediğin kadar hata yapıp öğrenebileceğin sınırsız prova alanı.</Text>
 
       <View style={s.coachRow}>

@@ -3,7 +3,7 @@ import { useTheme } from '../../theme/useTheme';
 
 export type MascotMood = 'happy' | 'almost' | 'calm' | 'celebrate';
 
-/** "Balon" – SmallTalk'un yol arkadaşı. Tuvaldeki SVG yolları birebir. */
+/** "Balon" – Talkwell'in yol arkadaşı. Tuvaldeki SVG yolları birebir. */
 export function Mascot({ mood = 'happy', size = 72, body }: { mood?: MascotMood; size?: number; body?: string }) {
   const { c } = useTheme();
   const fill = body ?? (mood === 'almost' ? c.tertiaryBright : mood === 'calm' ? '#8FA1BF' : '#FF6B4A');

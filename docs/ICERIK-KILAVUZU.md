@@ -1,4 +1,4 @@
-# SmallTalk içerik kılavuzu
+# Talkwell içerik kılavuzu
 
 Senaryo yazarken, yeni dil eklerken, ses ve görsel üretirken bu dosya esas alınır. `/senaryo-ekle`, `/dil-ekle`, `/ses-uret` ve `/gorsel` komutları önce bunu okur.
 

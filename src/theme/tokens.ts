@@ -1,5 +1,5 @@
 /**
- * SmallTalk tasarım tokenları.
+ * Talkwell tasarım tokenları.
  * Kaynak: Stitch projesinin Tailwind renkleri (Material 3 adlandırması) + beğenilen paywall.
  * Claude Design'daki "Tasarım tokenları" panosuyla birebir. Bileşenlerde hex yazma; useTheme() kullan.
  *
